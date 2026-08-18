@@ -29,11 +29,21 @@ main{
 
 
         input{
-            border: none;
+            border: 1px solid #dfe3eb;
             outline: none;
             padding-inline: 1rem;
             padding-block: 0.75rem;
             border-radius: 0.75rem;
+            background-color: #f0f2f7;
+            color: #1a1a2e;
+
+            &::placeholder {
+                color: #6b7280;
+            }
+
+            &:focus {
+                border-color: #e1034d;
+            }
         }
     }
 
