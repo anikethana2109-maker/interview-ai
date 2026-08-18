@@ -22,7 +22,8 @@
     "mongoose": "^9.2.1",
     "multer": "^2.0.2",
     "pdf-parse": "^2.4.5",
-    "puppeteer": "^24.37.5",
+    "puppeteer-core": "^24.37.5",
+    "@sparticuz/chromium": "^131.0.1",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.25.1"
   }
