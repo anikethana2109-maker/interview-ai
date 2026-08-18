@@ -1,27 +1,36 @@
 const mongoose = require("mongoose")
 
-
-let isConnected = false
+let cachedPromise = null
 
 async function connectToDB() {
-
-    if (isConnected) {
-        console.log("Using existing database connection")
-        return
+    if (mongoose.connection.readyState === 1) {
+        return mongoose.connection
     }
 
     if (!process.env.MONGO_URI) {
         console.error("MONGO_URI is not defined in environment variables")
-        return
+        return null
+    }
+
+    if (!cachedPromise) {
+        cachedPromise = mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000,
+            bufferCommands: false,
+        }).then((mongooseInstance) => {
+            console.log("Connected to MongoDB successfully")
+            return mongooseInstance
+        }).catch((err) => {
+            cachedPromise = null
+            console.error("MongoDB connection error:", err.message)
+            throw err
+        })
     }
 
     try {
-        await mongoose.connect(process.env.MONGO_URI)
-        isConnected = true
-        console.log("Connected to Database")
-    }
-    catch (err) {
-        console.error("Database connection error:", err.message)
+        return await cachedPromise
+    } catch (err) {
+        cachedPromise = null
+        throw err
     }
 }
 
