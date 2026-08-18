@@ -33,6 +33,15 @@ const authRouter = require("./routes/auth.routes")
 const interviewRouter = require("./routes/interview.routes")
 
 
+/* root routes for health check */
+app.get("/", (req, res) => {
+    res.status(200).json({ status: "ok", message: "Interview AI Backend is running" })
+})
+
+app.get("/api", (req, res) => {
+    res.status(200).json({ status: "ok", message: "Interview AI Backend API is running" })
+})
+
 /* using all the routes here */
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
