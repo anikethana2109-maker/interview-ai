@@ -19,11 +19,14 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        process.env.FRONTEND_URL
-    ].filter(Boolean),
-    credentials: true
+    origin: (origin, callback) => {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true)
+        return callback(null, true)
+    },
+    credentials: true,
+    methods: [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
+    allowedHeaders: [ "Content-Type", "Authorization", "Cookie" ]
 }))
 
 /* Lazy DB connection middleware — connects on first request, reuses after */
