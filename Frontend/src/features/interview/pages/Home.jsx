@@ -5,17 +5,59 @@ import { useNavigate } from 'react-router'
 
 const Home = () => {
 
-    const { loading, generateReport,reports } = useInterview()
+    const { loading, generateReport, reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ selectedFile, setSelectedFile ] = useState(null)
+    const [ formError, setFormError ] = useState("")
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setSelectedFile(file)
+            setFormError("")
+        }
+    }
+
+    const handleRemoveFile = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setSelectedFile(null)
+        if (resumeInputRef.current) {
+            resumeInputRef.current.value = ""
+        }
+    }
+
     const handleGenerateReport = async () => {
-        const resumeFile = resumeInputRef.current.files[ 0 ]
-        const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-        navigate(`/interview/${data._id}`)
+        setFormError("")
+
+        if (!jobDescription.trim()) {
+            setFormError("Please provide a target job description.")
+            return
+        }
+
+        if (!selectedFile && !selfDescription.trim()) {
+            setFormError("Please upload your resume PDF or provide a self-description.")
+            return
+        }
+
+        try {
+            const data = await generateReport({
+                jobDescription,
+                selfDescription,
+                resumeFile: selectedFile
+            })
+            if (data && data._id) {
+                navigate(`/interview/${data._id}`)
+            } else {
+                setFormError("Could not generate interview plan. Please check your inputs and try again.")
+            }
+        } catch (err) {
+            setFormError(err?.response?.data?.message || err.message || "Failed to generate report.")
+        }
     }
 
     if (loading) {
@@ -35,6 +77,26 @@ const Home = () => {
                 <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
             </header>
 
+            {formError && (
+                <div style={{
+                    maxWidth: "960px",
+                    margin: "0 auto 1.5rem auto",
+                    padding: "0.875rem 1.25rem",
+                    backgroundColor: "rgba(225, 3, 77, 0.1)",
+                    border: "1px solid #e1034d",
+                    borderRadius: "0.5rem",
+                    color: "#e1034d",
+                    fontSize: "0.875rem",
+                    fontWeight: "500",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem"
+                }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{formError}</span>
+                </div>
+            )}
+
             {/* Main Card */}
             <div className='interview-card'>
                 <div className='interview-card__body'>
@@ -49,12 +111,13 @@ const Home = () => {
                             <span className='badge badge--required'>Required</span>
                         </div>
                         <textarea
+                            value={jobDescription}
                             onChange={(e) => { setJobDescription(e.target.value) }}
                             className='panel__textarea'
                             placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
                             maxLength={5000}
                         />
-                        <div className='char-counter'>0 / 5000 chars</div>
+                        <div className='char-counter'>{jobDescription.length} / 5000 chars</div>
                     </div>
 
                     {/* Vertical Divider */}
@@ -75,13 +138,48 @@ const Home = () => {
                                 Upload Resume
                                 <span className='badge badge--best'>Best Results</span>
                             </label>
-                            <label className='dropzone' htmlFor='resume'>
-                                <span className='dropzone__icon'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
-                                </span>
-                                <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
-                                <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
-                                <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
+                            <label className={`dropzone ${selectedFile ? 'dropzone--selected' : ''}`} htmlFor='resume'>
+                                {selectedFile ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+                                        <span className='dropzone__icon' style={{ color: '#10b981' }}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+                                        </span>
+                                        <p className='dropzone__title' style={{ color: '#10b981', fontWeight: 600 }}>{selectedFile.name}</p>
+                                        <p className='dropzone__subtitle'>{(selectedFile.size / 1024).toFixed(1)} KB &bull; Click to change</p>
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveFile}
+                                            style={{
+                                                marginTop: "0.25rem",
+                                                background: "none",
+                                                border: "none",
+                                                color: "#e1034d",
+                                                fontSize: "0.75rem",
+                                                cursor: "pointer",
+                                                textDecoration: "underline"
+                                            }}
+                                        >
+                                            Remove file
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <span className='dropzone__icon'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
+                                        </span>
+                                        <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
+                                        <p className='dropzone__subtitle'>PDF (Max 10MB)</p>
+                                    </>
+                                )}
+                                <input
+                                    ref={resumeInputRef}
+                                    onChange={handleFileChange}
+                                    hidden
+                                    type='file'
+                                    id='resume'
+                                    name='resume'
+                                    accept='.pdf'
+                                />
                             </label>
                         </div>
 
@@ -92,6 +190,7 @@ const Home = () => {
                         <div className='self-description'>
                             <label className='section-label' htmlFor='selfDescription'>Quick Self-Description</label>
                             <textarea
+                                value={selfDescription}
                                 onChange={(e) => { setSelfDescription(e.target.value) }}
                                 id='selfDescription'
                                 name='selfDescription'
