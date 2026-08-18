@@ -1,9 +1,6 @@
 const { generateInterviewReport, generateResumePdf } = require("../services/ai.service")
 const interviewReportModel = require("../models/interviewReport.model")
 
-
-
-
 /**
  * @description Controller to generate interview report based on user self description, resume and job description.
  */
@@ -24,7 +21,7 @@ async function generateInterViewReportController(req, res) {
             } catch (pdfErr) {
                 console.error("PDF parsing error:", pdfErr.message)
                 return res.status(400).json({
-                    message: "Unable to extract text from the uploaded PDF. Please ensure it is a valid PDF with selectable text."
+                    message: "Unable to read your PDF. Please ensure it's a standard PDF with selectable text (not a scanned image)."
                 })
             }
         }
@@ -63,61 +60,75 @@ async function generateInterViewReportController(req, res) {
  * @description Controller to get interview report by interviewId.
  */
 async function getInterviewReportByIdController(req, res) {
+    try {
+        const { interviewId } = req.params
+        const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id })
 
-    const { interviewId } = req.params
+        if (!interviewReport) {
+            return res.status(404).json({ message: "Interview report not found." })
+        }
 
-    const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id })
-
-    if (!interviewReport) {
-        return res.status(404).json({
-            message: "Interview report not found."
+        res.status(200).json({
+            message: "Interview report fetched successfully.",
+            interviewReport
         })
+    } catch (err) {
+        console.error("Error fetching report:", err)
+        res.status(500).json({ message: err.message || "Failed to fetch interview report" })
     }
-
-    res.status(200).json({
-        message: "Interview report fetched successfully.",
-        interviewReport
-    })
 }
 
-
-/** 
+/**
  * @description Controller to get all interview reports of logged in user.
  */
 async function getAllInterviewReportsController(req, res) {
-    const interviewReports = await interviewReportModel.find({ user: req.user.id }).sort({ createdAt: -1 }).select("-resume -selfDescription -jobDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
+    try {
+        const interviewReports = await interviewReportModel
+            .find({ user: req.user.id })
+            .sort({ createdAt: -1 })
+            .select("-resume -selfDescription -jobDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
 
-    res.status(200).json({
-        message: "Interview reports fetched successfully.",
-        interviewReports
-    })
+        res.status(200).json({
+            message: "Interview reports fetched successfully.",
+            interviewReports
+        })
+    } catch (err) {
+        console.error("Error fetching reports:", err)
+        res.status(500).json({ message: err.message || "Failed to fetch reports" })
+    }
 }
-
 
 /**
- * @description Controller to generate resume PDF based on user self description, resume and job description.
+ * @description Controller to generate resume HTML (returned to frontend for PDF conversion).
  */
 async function generateResumePdfController(req, res) {
-    const { interviewReportId } = req.params
+    try {
+        const { interviewReportId } = req.params
 
-    const interviewReport = await interviewReportModel.findById(interviewReportId)
+        const interviewReport = await interviewReportModel.findById(interviewReportId)
 
-    if (!interviewReport) {
-        return res.status(404).json({
-            message: "Interview report not found."
-        })
+        if (!interviewReport) {
+            return res.status(404).json({ message: "Interview report not found." })
+        }
+
+        const { resume = "", jobDescription = "", selfDescription = "" } = interviewReport
+
+        const result = await generateResumePdf({ resume, jobDescription, selfDescription })
+
+        // result.type is always "html" (puppeteer not available in serverless)
+        // Frontend uses html2pdf to convert it to PDF client-side
+        res.set("Content-Type", "text/html; charset=utf-8")
+        res.set("X-Content-Type", "resume-html")
+        return res.send(result.data)
+    } catch (err) {
+        console.error("Resume generation error:", err)
+        res.status(500).json({ message: err.message || "Failed to generate resume" })
     }
-
-    const { resume, jobDescription, selfDescription } = interviewReport
-
-    const pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription })
-
-    res.set({
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=resume_${interviewReportId}.pdf`
-    })
-
-    res.send(pdfBuffer)
 }
 
-module.exports = { generateInterViewReportController, getInterviewReportByIdController, getAllInterviewReportsController, generateResumePdfController }
+module.exports = {
+    generateInterViewReportController,
+    getInterviewReportByIdController,
+    getAllInterviewReportsController,
+    generateResumePdfController
+}

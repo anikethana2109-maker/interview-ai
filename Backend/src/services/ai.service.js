@@ -2,7 +2,6 @@ const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
 
-
 let aiClient = null
 
 function getAiClient() {
@@ -16,43 +15,60 @@ function getAiClient() {
     return aiClient
 }
 
+// Models tried in order — falls back if one is 503 overloaded or 404
+const MODEL_CHAIN = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+
+async function generateContentWithRetry(params) {
+    const ai = getAiClient()
+    let lastError = null
+    for (const model of MODEL_CHAIN) {
+        try {
+            return await ai.models.generateContent({ ...params, model })
+        } catch (err) {
+            const msg = err?.message || ""
+            const isRetryable = msg.includes("503") || msg.includes("UNAVAILABLE") || msg.includes("no longer available") || msg.includes("NOT_FOUND")
+            lastError = err
+            if (!isRetryable) throw err
+            console.log(`Model ${model} failed, trying next...`)
+        }
+    }
+    throw lastError
+}
 
 const interviewReportSchema = z.object({
-    matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job describe"),
+    matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job description"),
     technicalQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
-        intention: z.string().describe("The intention of interviewer behind asking this question"),
+        question: z.string().describe("A technical question that can be asked in the interview"),
+        intention: z.string().describe("The intention of the interviewer behind asking this question"),
         answer: z.string().describe("How to answer this question, what points to cover, what approach to take etc.")
     })).describe("Technical questions that can be asked in the interview along with their intention and how to answer them"),
     behavioralQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
-        intention: z.string().describe("The intention of interviewer behind asking this question"),
+        question: z.string().describe("A behavioral question that can be asked in the interview"),
+        intention: z.string().describe("The intention of the interviewer behind asking this question"),
         answer: z.string().describe("How to answer this question, what points to cover, what approach to take etc.")
     })).describe("Behavioral questions that can be asked in the interview along with their intention and how to answer them"),
     skillGaps: z.array(z.object({
         skill: z.string().describe("The skill which the candidate is lacking"),
-        severity: z.enum([ "low", "medium", "high" ]).describe("The severity of this skill gap, i.e. how important is this skill for the job and how much it can impact the candidate's chances")
+        severity: z.enum(["low", "medium", "high"]).describe("The severity of this skill gap")
     })).describe("List of skill gaps in the candidate's profile along with their severity"),
     preparationPlan: z.array(z.object({
         day: z.number().describe("The day number in the preparation plan, starting from 1"),
-        focus: z.string().describe("The main focus of this day in the preparation plan, e.g. data structures, system design, mock interviews etc."),
-        tasks: z.array(z.string()).describe("List of tasks to be done on this day to follow the preparation plan, e.g. read a specific book or article, solve a set of problems, watch a video etc.")
-    })).describe("A day-wise preparation plan for the candidate to follow in order to prepare for the interview effectively"),
+        focus: z.string().describe("The main focus of this day in the preparation plan"),
+        tasks: z.array(z.string()).describe("List of tasks to be done on this day")
+    })).describe("A day-wise preparation plan for the candidate"),
     title: z.string().describe("The title of the job for which the interview report is generated"),
 })
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
+    const prompt = `Generate a comprehensive interview report for a candidate with the following details:
+Resume: ${resume || "Not provided"}
+Self Description: ${selfDescription || "Not provided"}
+Job Description: ${jobDescription}
 
+Be specific, practical and actionable. Generate 5-7 technical questions and 3-5 behavioral questions.
+Create a 7-day preparation plan with clear daily tasks.`
 
-    const prompt = `Generate an interview report for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-`
-
-    const ai = getAiClient()
-    const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+    const response = await generateContentWithRetry({
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -61,61 +77,29 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
     })
 
     return JSON.parse(response.text)
-
-
-}
-
-
-
-async function generatePdfFromHtml(htmlContent) {
-    const puppeteer = require("puppeteer-core")
-    const chromium = require("@sparticuz/chromium")
-
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless
-    })
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
-
-    const pdfBuffer = await page.pdf({
-        format: "A4", margin: {
-            top: "20mm",
-            bottom: "20mm",
-            left: "15mm",
-            right: "15mm"
-        }
-    })
-
-    await browser.close()
-
-    return pdfBuffer
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
-
     const resumePdfSchema = z.object({
-        html: z.string().describe("The HTML content of the resume which can be converted to PDF using any library like puppeteer")
+        html: z.string().describe("The complete self-contained HTML content of the resume, ready to be printed as PDF")
     })
 
-    const prompt = `Generate resume for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
+    const prompt = `Generate a professional, ATS-friendly resume in HTML format for a candidate with the following details:
+Resume/Experience: ${resume || "Not provided"}
+Self Description: ${selfDescription || "Not provided"}
+Job Description: ${jobDescription || "Not provided"}
 
-                        the response should be a JSON object with a single field "html" which contains the HTML content of the resume which can be converted to PDF using any library like puppeteer.
-                        The resume should be tailored for the given job description and should highlight the candidate's strengths and relevant experience. The HTML content should be well-formatted and structured, making it easy to read and visually appealing.
-                        The content of resume should be not sound like it's generated by AI and should be as close as possible to a real human-written resume.
-                        you can highlight the content using some colors or different font styles but the overall design should be simple and professional.
-                        The content should be ATS friendly, i.e. it should be easily parsable by ATS systems without losing important information.
-                        The resume should not be so lengthy, it should ideally be 1-2 pages long when converted to PDF. Focus on quality rather than quantity and make sure to include all the relevant information that can increase the candidate's chances of getting an interview call for the given job description.
-                    `
+Requirements:
+- The HTML must be completely self-contained with all CSS inline or in a <style> tag
+- Use a clean, professional design with good typography
+- Make it ATS-friendly (no images, tables for layout only if needed, clear section headings)
+- Tailor content to match the job description
+- Keep it to 1-2 pages when printed
+- Use a color scheme of #1a1a2e (dark navy) for headings and #6c63ff (purple) for accents
+- Include sections: Contact Info, Summary, Skills, Experience, Education (use available data)
+- Do NOT include placeholder data - only use what's provided`
 
-    const ai = getAiClient()
-    const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+    const response = await generateContentWithRetry({
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -123,13 +107,10 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
         }
     })
 
-
     const jsonContent = JSON.parse(response.text)
-
-    const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
-
-    return pdfBuffer
-
+    // Return the HTML — the controller will handle sending it
+    // Puppeteer is not available in serverless, so frontend converts HTML to PDF
+    return { type: "html", data: jsonContent.html }
 }
 
 module.exports = { generateInterviewReport, generateResumePdf }

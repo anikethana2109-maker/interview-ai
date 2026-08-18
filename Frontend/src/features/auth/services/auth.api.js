@@ -1,22 +1,7 @@
-import axios from "axios"
-
-const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
-    withCredentials: true
-})
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token")
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-})
+import api from "../../../api"
 
 export async function register({ username, email, password }) {
-    const response = await api.post('/api/auth/register', {
-        username, email, password
-    })
+    const response = await api.post("/api/auth/register", { username, email, password })
     if (response.data?.token) {
         localStorage.setItem("token", response.data.token)
     }
@@ -24,9 +9,7 @@ export async function register({ username, email, password }) {
 }
 
 export async function login({ email, password }) {
-    const response = await api.post("/api/auth/login", {
-        email, password
-    })
+    const response = await api.post("/api/auth/login", { email, password })
     if (response.data?.token) {
         localStorage.setItem("token", response.data.token)
     }
@@ -36,9 +19,10 @@ export async function login({ email, password }) {
 export async function logout() {
     try {
         const response = await api.get("/api/auth/logout")
-        localStorage.removeItem("token")
         return response.data
     } catch (err) {
+        // ignore errors on logout
+    } finally {
         localStorage.removeItem("token")
     }
 }

@@ -25,8 +25,8 @@ app.use(cors({
         return callback(null, true)
     },
     credentials: true,
-    methods: [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
-    allowedHeaders: [ "Content-Type", "Authorization", "Cookie" ]
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
 }))
 
 /* Lazy DB connection middleware — connects on first request, reuses after */
@@ -60,8 +60,8 @@ app.use("/api/interview", interviewRouter)
 
 /* Global error handler */
 app.use((err, req, res, next) => {
-    console.error("Unhandled error:", err)
-    res.status(500).json({ message: err.message || "Internal server error", error: err.toString() })
+    console.error("Unhandled error:", err.message)
+    res.status(500).json({ message: "Internal server error" })
 })
 
 module.exports = app
