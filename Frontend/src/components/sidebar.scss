@@ -1,13 +1,11 @@
 // ── Sidebar ───────────────────────────────────────────────────────────────────
-// Two states: collapsed (64px icon rail) and expanded (280px full)
-// State is driven by JS (onMouseEnter / onMouseLeave) for reliability
 
-$w-collapsed:  64px;
-$w-expanded:  280px;
-$ease:         cubic-bezier(0.4, 0, 0.2, 1);
-$dur:          0.3s;
+$w-collapsed: 64px;
+$w-expanded:  268px;
+$ease:        cubic-bezier(0.4, 0, 0.2, 1);
+$dur:         0.3s;
 
-// ── Base shell ────────────────────────────────────────────────────────────────
+// ── Shell ─────────────────────────────────────────────────────────────────────
 .sidebar {
     position: fixed;
     top: 0;
@@ -20,102 +18,64 @@ $dur:          0.3s;
     flex-direction: column;
     z-index: 300;
     overflow: hidden;
-    transition:
-        width      $dur $ease,
-        box-shadow $dur $ease,
-        background-color 0.3s;
+    transition: width $dur $ease, box-shadow $dur $ease, background-color 0.3s;
 
-    // Desktop: always rendered, width animates
     @media (min-width: 901px) {
         transform: none !important;
 
-        // ─── Expanded ──────────────────────────────────────────────────────────
+        // ── Expanded state ────────────────────────────────────────────────────
         &--expanded {
             width: $w-expanded;
-            box-shadow: 6px 0 32px rgba(0, 0, 0, 0.2);
             overflow-y: auto;
+            box-shadow: 6px 0 40px rgba(0, 0, 0, 0.22);
 
-            .sidebar__expandable { display: flex; }
+            .sidebar__expandable  { display: flex; }
             .sidebar__compact     { display: none;  }
 
             .sidebar__label-text,
-            .sidebar__logout-text { opacity: 1; width: auto; }
+            .sidebar__logout-text { opacity: 1; max-width: 200px; }
 
-            .sidebar__nav-item {
-                justify-content: flex-start;
-                padding: 0.65rem 1rem;
-                gap: 0.75rem;
-            }
-
-            .sidebar__profile {
-                justify-content: flex-start;
-                padding: 1.25rem 1.25rem 1rem;
-                gap: 0.75rem;
-            }
-
-            .sidebar__logout {
-                justify-content: flex-start;
-                padding: 1rem 1.25rem;
-                gap: 0.75rem;
-            }
-
-            .sidebar__nav { padding: 0.75rem 0.625rem; }
+            .sidebar__profile     { justify-content: flex-start; padding: 1.5rem 1.25rem 1.25rem; gap: 0.75rem; }
+            .sidebar__nav         { padding: 1rem 0.75rem 0.75rem; }
+            .sidebar__nav-item    { justify-content: flex-start; padding: 0.65rem 0.875rem; gap: 0.65rem; }
+            .sidebar__logout      { justify-content: flex-start; padding: 1rem 1.25rem; gap: 0.65rem; }
         }
 
-        // ─── Collapsed (default) ───────────────────────────────────────────────
-        .sidebar__expandable { display: none;  }
+        // ── Collapsed state (default) ─────────────────────────────────────────
+        .sidebar__expandable  { display: none; }
         .sidebar__compact     { display: flex; }
 
         .sidebar__label-text,
-        .sidebar__logout-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-        }
+        .sidebar__logout-text { opacity: 0; max-width: 0; overflow: hidden; }
 
-        .sidebar__nav-item {
-            justify-content: center;
-            padding: 0.65rem;
-            gap: 0;
-        }
-
-        .sidebar__profile {
-            justify-content: center;
-            padding: 1.25rem 0.5rem 1rem;
-            gap: 0;
-        }
-
-        .sidebar__logout {
-            justify-content: center;
-            padding: 1rem 0;
-            gap: 0;
-        }
-
-        .sidebar__close { display: none !important; }
-        .sidebar__nav { padding: 0.75rem 0.5rem; }
+        .sidebar__profile     { justify-content: center; padding: 1.25rem 0.5rem; gap: 0; }
+        .sidebar__nav         { padding: 0.75rem 0.5rem; }
+        .sidebar__nav-item    { justify-content: center; padding: 0.7rem; gap: 0; }
+        .sidebar__logout      { justify-content: center; padding: 1rem 0; gap: 0; }
+        .sidebar__close       { display: none !important; }
     }
 
-    // ── Mobile: full-width overlay ─────────────────────────────────────────────
+    // ── Mobile overlay ────────────────────────────────────────────────────────
     @media (max-width: 900px) {
         width: $w-expanded;
         transform: translateX(-100%);
         overflow-y: auto;
         transition: transform $dur $ease, background-color 0.3s;
+        box-shadow: none;
 
         &--open {
             transform: translateX(0);
-            box-shadow: 6px 0 32px rgba(0, 0, 0, 0.25);
+            box-shadow: 6px 0 40px rgba(0, 0, 0, 0.25);
         }
 
-        // Everything visible on mobile
-        .sidebar__expandable { display: flex !important; }
+        .sidebar__expandable  { display: flex !important; }
         .sidebar__compact     { display: none  !important; }
         .sidebar__label-text,
-        .sidebar__logout-text { opacity: 1 !important; width: auto !important; }
-        .sidebar__nav-item  { justify-content: flex-start !important; padding: 0.65rem 1rem !important; gap: 0.75rem !important; }
-        .sidebar__profile   { justify-content: flex-start !important; padding: 1.25rem 1.25rem 1rem !important; gap: 0.75rem !important; }
-        .sidebar__logout    { justify-content: flex-start !important; padding: 1rem 1.25rem !important; gap: 0.75rem !important; }
-        .sidebar__nav       { padding: 0.75rem 0.625rem !important; }
+        .sidebar__logout-text { opacity: 1 !important; max-width: 200px !important; }
+        .sidebar__profile     { justify-content: flex-start !important; padding: 1.5rem 1.25rem 1.25rem !important; gap: 0.75rem !important; }
+        .sidebar__nav         { padding: 1rem 0.75rem 0.75rem !important; }
+        .sidebar__nav-item    { justify-content: flex-start !important; padding: 0.65rem 0.875rem !important; gap: 0.65rem !important; }
+        .sidebar__logout      { justify-content: flex-start !important; padding: 1rem 1.25rem !important; gap: 0.65rem !important; }
     }
 }
 
@@ -127,10 +87,24 @@ $dur:          0.3s;
         position: fixed;
         inset: 0;
         z-index: 299;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(3px);
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(2px);
         animation: fadeIn 0.2s ease;
     }
+}
+
+// ── Layout helpers ────────────────────────────────────────────────────────────
+.sidebar__expandable {
+    flex-direction: column;
+    width: 100%;
+}
+
+.sidebar__compact {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0.4rem 0;
+    gap: 0.35rem;
 }
 
 // ── Profile ───────────────────────────────────────────────────────────────────
@@ -138,48 +112,51 @@ $dur:          0.3s;
     display: flex;
     align-items: center;
     gap: 0;
-    padding: 1.25rem 0.5rem 1rem;
-    background: linear-gradient(135deg,
-        rgba(var(--accent-rgb), 0.1) 0%,
-        rgba(var(--accent-rgb), 0.03) 100%
-    );
     flex-shrink: 0;
+    background: linear-gradient(135deg,
+        rgba(var(--accent-rgb), 0.12) 0%,
+        rgba(var(--accent-rgb), 0.04) 100%
+    );
     transition: padding $dur $ease, gap $dur $ease, justify-content $dur $ease;
+    position: relative;
+    animation: fadeInUp 0.4s ease both;
 }
 
 .sidebar__avatar {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.55));
+    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.6));
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    letter-spacing: 0.02em;
-    box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.35);
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.35);
 }
 
 .sidebar__user-info {
-    min-width: 0;
     flex: 1;
+    min-width: 0;
 }
 
 .sidebar__username {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: -0.01em;
 }
 
 .sidebar__email {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     margin: 0.1rem 0 0;
     white-space: nowrap;
@@ -194,8 +171,8 @@ $dur:          0.3s;
     color: var(--text-muted);
     display: flex;
     align-items: center;
-    padding: 0.2rem;
-    border-radius: 0.35rem;
+    padding: 0.25rem;
+    border-radius: 0.4rem;
     flex-shrink: 0;
     transition: color 0.15s, background 0.15s;
     &:hover { color: var(--text-primary); background: var(--bg-panel); }
@@ -209,23 +186,22 @@ $dur:          0.3s;
     flex-shrink: 0;
 }
 
-// ── Section label ─────────────────────────────────────────────────────────────
+// ── Section Label ─────────────────────────────────────────────────────────────
 .sidebar__section-label {
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--text-muted);
-    padding: 0 0.75rem;
-    margin: 0 0 0.35rem;
+    padding: 0 1.25rem;
+    margin-bottom: 0.4rem;
 }
 
-// ── Nav ───────────────────────────────────────────────────────────────────────
+// ── Navigation ────────────────────────────────────────────────────────────────
 .sidebar__nav {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
-    padding: 0.75rem 0.5rem;
+    gap: 0.15rem;
     flex-shrink: 0;
     transition: padding $dur $ease;
 }
@@ -233,12 +209,10 @@ $dur:          0.3s;
 .sidebar__nav-item {
     display: flex;
     align-items: center;
-    gap: 0;
     width: 100%;
-    padding: 0.65rem;
     background: none;
     border: none;
-    border-radius: 0.55rem;
+    border-radius: 0.6rem;
     color: var(--text-muted);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.875rem;
@@ -250,8 +224,9 @@ $dur:          0.3s;
     transition: background 0.15s, color 0.15s, padding $dur $ease, gap $dur $ease;
 
     &:hover { background: var(--bg-panel); color: var(--text-primary); }
+
     &--active {
-        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.13), rgba(var(--accent-rgb), 0.05));
+        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0.06));
         color: var(--accent);
         font-weight: 700;
         svg { stroke: var(--accent); }
@@ -264,88 +239,50 @@ $dur:          0.3s;
     flex-shrink: 0;
 }
 
-// ── Label text (fades out/in with width) ──────────────────────────────────────
 .sidebar__label-text,
 .sidebar__logout-text {
     white-space: nowrap;
     overflow: hidden;
-    transition: opacity $dur $ease, width $dur $ease;
+    transition: opacity $dur $ease, max-width $dur $ease;
 }
 
-// ── Expandable sections (hidden in collapsed rail) ────────────────────────────
-// .sidebar__expandable: shown only when --expanded
-// .sidebar__compact:    shown only when collapsed
-
-.sidebar__expandable {
-    flex-direction: column;
-    width: 100%;
-}
-
-.sidebar__compact {
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
-    gap: 0.4rem;
-}
-
-// ── Compact stat dots ─────────────────────────────────────────────────────────
-.sidebar__stat-dot {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 30px;
-    border-radius: 0.5rem;
-    font-size: 0.68rem;
-    font-weight: 800;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-color);
-    color: var(--accent);
-    cursor: default;
-    &--avg  { color: #f5a623; }
-    &--best { color: #3fb950; font-size: 0.85rem; }
-}
-
-// ── Stats full grid ───────────────────────────────────────────────────────────
-.sidebar__stats {
-    flex-shrink: 0;
-}
+// ── Stats ─────────────────────────────────────────────────────────────────────
+.sidebar__stats { flex-shrink: 0; }
 
 .sidebar__stats-body {
-    padding: 0.75rem 0.625rem;
+    padding: 1rem 0.75rem 0.875rem;
 }
 
 .sidebar__stat-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.45rem;
-    margin-top: 0.35rem;
+    gap: 0.5rem;
+    margin-top: 0.1rem;
 }
 
 .sidebar__stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.15rem;
-    padding: 0.6rem 0.4rem;
+    gap: 0.2rem;
+    padding: 0.75rem 0.5rem;
     background: var(--bg-panel);
     border: 1px solid var(--border-color);
-    border-radius: 0.65rem;
+    border-radius: 0.75rem;
     transition: transform 0.15s, border-color 0.15s;
 
-    &:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb), 0.35); }
+    &:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb), 0.4); }
 
     &--best {
         grid-column: 1 / -1;
-        background: linear-gradient(135deg, rgba(63,185,80,0.09), rgba(63,185,80,0.03));
-        border-color: rgba(63,185,80,0.22);
+        background: linear-gradient(135deg, rgba(63,185,80,0.1), rgba(63,185,80,0.04));
+        border-color: rgba(63,185,80,0.25);
         .sidebar__stat-value { color: #3fb950; }
     }
 }
 
 .sidebar__stat-value {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: var(--accent);
     line-height: 1;
@@ -353,7 +290,7 @@ $dur:          0.3s;
 }
 
 .sidebar__stat-label {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
@@ -361,9 +298,26 @@ $dur:          0.3s;
     text-align: center;
 }
 
-// ── Tip of the day ────────────────────────────────────────────────────────────
+// ── Compact stat dots (collapsed only) ───────────────────────────────────────
+.sidebar__stat-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 30px;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    color: var(--accent);
+    &--avg  { color: #f5a623; }
+    &--best { color: #3fb950; font-size: 0.9rem; }
+}
+
+// ── Tip of the Day ────────────────────────────────────────────────────────────
 .sidebar__tip {
-    padding: 0.75rem 0.625rem;
+    padding: 0.875rem 0.75rem;
     flex-shrink: 0;
 }
 
@@ -372,19 +326,19 @@ $dur:          0.3s;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0.55rem 0.75rem;
+    padding: 0.6rem 0.875rem;
     background: rgba(var(--accent-rgb), 0.06);
     border: 1px solid rgba(var(--accent-rgb), 0.18);
-    border-radius: 0.55rem;
+    border-radius: 0.6rem;
     cursor: pointer;
     color: var(--accent);
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    transition: background 0.15s;
+    transition: background 0.15s, border-color 0.15s;
 
-    > span { display: flex; align-items: center; gap: 0.4rem; }
-    &:hover { background: rgba(var(--accent-rgb), 0.1); }
+    > span { display: flex; align-items: center; gap: 0.5rem; }
+    &:hover { background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.3); }
 }
 
 .sidebar__tip-body {
@@ -396,8 +350,8 @@ $dur:          0.3s;
     &--open { max-height: 200px; opacity: 1; }
 
     p {
-        padding: 0.65rem 0.5rem 0;
-        font-size: 0.78rem;
+        padding: 0.75rem 0.875rem 0;
+        font-size: 0.8rem;
         color: var(--text-muted);
         line-height: 1.65;
         margin: 0;
@@ -407,7 +361,7 @@ $dur:          0.3s;
 
 // ── Recent Plans ──────────────────────────────────────────────────────────────
 .sidebar__recent {
-    padding: 0.75rem 0.625rem;
+    padding: 0.875rem 0.75rem;
     flex-shrink: 0;
 }
 
@@ -415,21 +369,21 @@ $dur:          0.3s;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.4rem;
-    padding: 0.45rem 0.6rem;
+    gap: 0.5rem;
+    padding: 0.55rem 0.875rem;
     background: none;
     border: none;
-    border-radius: 0.45rem;
+    border-radius: 0.5rem;
     cursor: pointer;
     width: 100%;
     font-family: 'Inter', system-ui, sans-serif;
-    transition: background 0.15s;
+    transition: background 0.15s, transform 0.15s;
 
-    &:hover { background: var(--bg-panel); }
+    &:hover { background: var(--bg-panel); transform: translateX(2px); }
 }
 
 .sidebar__recent-title {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-primary);
     font-weight: 500;
     white-space: nowrap;
@@ -439,11 +393,11 @@ $dur:          0.3s;
 }
 
 .sidebar__recent-score {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 700;
     flex-shrink: 0;
-    padding: 0.1rem 0.35rem;
-    border-radius: 0.25rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
     &.score--high { color: #3fb950; background: rgba(63,185,80,0.1); }
     &.score--mid  { color: #f5a623; background: rgba(245,166,35,0.1); }
     &.score--low  { color: #ff4d4d; background: rgba(255,77,77,0.1); }
@@ -452,24 +406,19 @@ $dur:          0.3s;
 // ── Spacer ────────────────────────────────────────────────────────────────────
 .sidebar__spacer { flex: 1; min-height: 0; }
 
-// ── Theme ─────────────────────────────────────────────────────────────────────
+// ── Theme Toggle ──────────────────────────────────────────────────────────────
 .sidebar__theme {
-    padding: 0.75rem 0.625rem;
+    padding: 0.875rem 0.75rem;
     flex-shrink: 0;
-
-    &--bottom {
-        display: flex;
-        flex-direction: column;
-        gap: 0.45rem;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 // ── Logout ────────────────────────────────────────────────────────────────────
 .sidebar__logout {
     display: flex;
     align-items: center;
-    gap: 0;
-    padding: 1rem 0;
     background: none;
     border: none;
     border-top: 1px solid var(--border-color);
@@ -479,14 +428,13 @@ $dur:          0.3s;
     font-weight: 600;
     cursor: pointer;
     width: 100%;
-    justify-content: center;
     flex-shrink: 0;
     transition: color 0.15s, background 0.15s, padding $dur $ease, gap $dur $ease;
 
     &:hover { color: #ff4d4d; background: rgba(255,77,77,0.06); }
 }
 
-// ── Hamburger (mobile only) ───────────────────────────────────────────────────
+// ── Hamburger (mobile) ────────────────────────────────────────────────────────
 .sidebar-hamburger {
     display: none;
     @media (max-width: 900px) {
@@ -501,7 +449,7 @@ $dur:          0.3s;
         height: 40px;
         background: var(--bg-card);
         border: 1px solid var(--border-color);
-        border-radius: 0.55rem;
+        border-radius: 0.6rem;
         cursor: pointer;
         color: var(--text-primary);
         box-shadow: var(--shadow-sm);
