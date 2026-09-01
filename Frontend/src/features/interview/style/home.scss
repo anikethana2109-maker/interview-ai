@@ -14,16 +14,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 3rem 1.5rem 4rem;
+    padding: 2.5rem 1.5rem 4rem;
     gap: 2rem;
-
-    // Top-right theme toggle
-    .home-topbar {
-        position: fixed;
-        top: 1rem;
-        right: 1.25rem;
-        z-index: 100;
-    }
 }
 
 // ── Page Header ──────────────────────────────────────────────────────────────

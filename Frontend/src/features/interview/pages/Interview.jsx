@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useParams } from 'react-router'
-import ThemeToggle from '../../../components/ThemeToggle'
 
 const NAV_ITEMS = [
     {
@@ -91,11 +90,6 @@ const Interview = () => {
 
     return (
         <div className='interview-page'>
-
-            {/* Fixed Theme Toggle */}
-            <div className="interview-topbar">
-                <ThemeToggle />
-            </div>
 
             <div className='interview-layout'>
 

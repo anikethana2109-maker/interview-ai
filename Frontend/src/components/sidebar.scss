@@ -1,0 +1,422 @@
+// ── Sidebar Styles ────────────────────────────────────────────────────────────
+// Uses CSS custom properties from style.scss
+
+$sidebar-width: 260px;
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: $sidebar-width;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    z-index: 300;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+
+    // Desktop: always visible
+    @media (min-width: 901px) {
+        transform: translateX(0) !important;
+        box-shadow: none;
+    }
+
+    // Mobile: hidden by default, slides in when .sidebar--open
+    @media (max-width: 900px) {
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-hover);
+
+        &--open {
+            transform: translateX(0);
+        }
+    }
+}
+
+// ── Backdrop ──────────────────────────────────────────────────────────────────
+.sidebar-backdrop {
+    display: none;
+
+    @media (max-width: 900px) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 299;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(2px);
+        animation: fadeIn 0.2s ease;
+    }
+}
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+.sidebar__profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1.25rem 1.25rem;
+    background: linear-gradient(135deg,
+        rgba(var(--accent-rgb), 0.12) 0%,
+        rgba(var(--accent-rgb), 0.04) 100%
+    );
+    position: relative;
+    animation: fadeInUp 0.4s ease both;
+}
+
+.sidebar__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.6));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.35);
+    animation: pulse-ring 3s ease-in-out infinite;
+}
+
+.sidebar__user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar__username {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+}
+
+.sidebar__email {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 0.1rem 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+    border-radius: 0.4rem;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+        color: var(--text-primary);
+        background: var(--bg-panel);
+    }
+
+    // Only visible on mobile
+    @media (min-width: 901px) {
+        display: none;
+    }
+}
+
+// ── Divider ───────────────────────────────────────────────────────────────────
+.sidebar__divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0;
+    flex-shrink: 0;
+}
+
+// ── Section Label ─────────────────────────────────────────────────────────────
+.sidebar__section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    padding: 0 1.25rem;
+    margin-bottom: 0.4rem;
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+.sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 1rem 0.75rem 0.75rem;
+}
+
+.sidebar__nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.65rem 0.875rem;
+    background: none;
+    border: none;
+    border-radius: 0.6rem;
+    color: var(--text-muted);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s, color 0.15s, transform 0.15s;
+
+    &:hover {
+        background: var(--bg-panel);
+        color: var(--text-primary);
+        transform: translateX(3px);
+    }
+
+    &--active {
+        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0.06));
+        color: var(--accent);
+        font-weight: 700;
+
+        svg { stroke: var(--accent); }
+    }
+}
+
+.sidebar__nav-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+.sidebar__stats {
+    padding: 1rem 0.75rem 0.875rem;
+}
+
+.sidebar__stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.1rem;
+}
+
+.sidebar__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.75rem 0.5rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    transition: transform 0.15s, border-color 0.15s;
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(var(--accent-rgb), 0.4);
+    }
+
+    &--best {
+        grid-column: 1 / -1;
+        background: linear-gradient(135deg,
+            rgba(63, 185, 80, 0.1),
+            rgba(63, 185, 80, 0.04)
+        );
+        border-color: rgba(63, 185, 80, 0.25);
+
+        .sidebar__stat-value { color: #3fb950; }
+    }
+}
+
+.sidebar__stat-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.sidebar__stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+}
+
+// ── Tip of the Day ────────────────────────────────────────────────────────────
+.sidebar__tip {
+    padding: 0.875rem 0.75rem;
+}
+
+.sidebar__tip-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.6rem 0.875rem;
+    background: rgba(var(--accent-rgb), 0.06);
+    border: 1px solid rgba(var(--accent-rgb), 0.18);
+    border-radius: 0.6rem;
+    cursor: pointer;
+    color: var(--accent);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background 0.15s, border-color 0.15s;
+
+    > span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &:hover {
+        background: rgba(var(--accent-rgb), 0.1);
+        border-color: rgba(var(--accent-rgb), 0.3);
+    }
+}
+
+.sidebar__tip-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s;
+    opacity: 0;
+
+    &--open {
+        max-height: 200px;
+        opacity: 1;
+    }
+
+    p {
+        padding: 0.75rem 0.875rem 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0;
+        font-style: italic;
+    }
+}
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+.sidebar__theme {
+    padding: 0.875rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+// ── Recent Plans ──────────────────────────────────────────────────────────────
+.sidebar__recent {
+    padding: 0.875rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.sidebar__recent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.875rem;
+    background: none;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.15s, transform 0.15s;
+    font-family: 'Inter', system-ui, sans-serif;
+
+    &:hover {
+        background: var(--bg-panel);
+        transform: translateX(2px);
+    }
+}
+
+.sidebar__recent-title {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.sidebar__recent-score {
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+
+    &.score--high { color: #3fb950; background: rgba(63,185,80,0.1); }
+    &.score--mid  { color: #f5a623; background: rgba(245,166,35,0.1); }
+    &.score--low  { color: #ff4d4d; background: rgba(255,77,77,0.1); }
+}
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+.sidebar__logout {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1rem 1.25rem;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+        color: #ff4d4d;
+        background: rgba(255, 77, 77, 0.06);
+    }
+}
+
+// ── Hamburger button (mobile only) ───────────────────────────────────────────
+.sidebar-hamburger {
+    display: none;
+
+    @media (max-width: 900px) {
+        display: flex;
+        position: fixed;
+        top: 0.875rem;
+        left: 0.875rem;
+        z-index: 250;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 0.6rem;
+        cursor: pointer;
+        color: var(--text-primary);
+        box-shadow: var(--shadow-sm);
+        transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+
+        &:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+        }
+    }
+}

@@ -22,7 +22,11 @@ $severity-low:    #3fb950;
     transition: background-color 0.3s, color 0.3s;
     padding-bottom: 5rem; // space for mobile bottom nav
 
-    @media (min-width: 769px) {
+    @media (max-width: 900px) {
+        padding: 0.75rem 0.75rem 5rem;
+    }
+
+    @media (min-width: 901px) {
         padding-bottom: 1.5rem;
     }
 }
@@ -627,19 +631,6 @@ $severity-low:    #3fb950;
     &--high   { color: $severity-high;   background: rgba($severity-high,   0.1); border-color: rgba($severity-high,   0.25); }
     &--medium { color: $severity-medium; background: rgba($severity-medium, 0.1); border-color: rgba($severity-medium, 0.25); }
     &--low    { color: $severity-low;    background: rgba($severity-low,    0.1); border-color: rgba($severity-low,    0.25); }
-}
-
-// ── Interview Top Bar (theme toggle etc) ──────────────────────────────────────
-.interview-topbar {
-    position: fixed;
-    top: 1rem;
-    right: 1.25rem;
-    z-index: 150;
-
-    @media (max-width: 768px) {
-        top: 0.6rem;
-        right: 0.75rem;
-    }
 }
 
 // ── Download Button ───────────────────────────────────────────────────────────

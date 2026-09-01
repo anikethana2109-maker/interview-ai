@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
-import ThemeToggle from '../../../components/ThemeToggle'
 
 const Home = () => {
     const { generateReport, reports } = useInterview()
@@ -76,11 +75,6 @@ const Home = () => {
 
     return (
         <div className='home-page'>
-
-            {/* Fixed theme toggle */}
-            <div className="home-topbar">
-                <ThemeToggle />
-            </div>
 
             {/* Page Header */}
             <header className='page-header'>

@@ -1,0 +1,26 @@
+// ── App Layout ────────────────────────────────────────────────────────────────
+// Positions sidebar + content side by side on desktop
+// On mobile the sidebar is an overlay, content is full width
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-page);
+    transition: background-color 0.3s;
+}
+
+.app-layout__content {
+    flex: 1;
+    min-width: 0;
+
+    // Desktop: shift content right by sidebar width
+    @media (min-width: 901px) {
+        margin-left: 260px;
+    }
+
+    // Mobile: full width, but add top padding for the hamburger button
+    @media (max-width: 900px) {
+        margin-left: 0;
+        padding-top: 3.5rem;
+    }
+}
