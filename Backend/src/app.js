@@ -43,6 +43,7 @@ app.use(async (req, res, next) => {
 /* require all the routes here */
 const authRouter = require("./routes/auth.routes")
 const interviewRouter = require("./routes/interview.routes")
+const skillRouter = require("./routes/skill.routes")
 
 
 /* root routes for health check */
@@ -57,6 +58,7 @@ app.get("/api", (req, res) => {
 /* using all the routes here */
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
+app.use("/api/skills", skillRouter)
 
 /* Global error handler */
 app.use((err, req, res, next) => {

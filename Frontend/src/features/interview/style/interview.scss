@@ -633,6 +633,43 @@ $severity-low:    #3fb950;
     &--low    { color: $severity-low;    background: rgba($severity-low,    0.1); border-color: rgba($severity-low,    0.25); }
 }
 
+// ── Skill Gap Row (with track button) ─────────────────────────────────────────
+.skill-gap-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+}
+
+.track-btn {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
+    background: rgba(var(--accent-rgb), 0.08);
+    color: var(--accent);
+    cursor: pointer;
+    font-family: 'Inter', system-ui, sans-serif;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.15s, opacity 0.15s;
+    flex-shrink: 0;
+
+    &:hover:not(:disabled) {
+        background: rgba(var(--accent-rgb), 0.16);
+        transform: scale(1.05);
+    }
+
+    &:disabled { opacity: 0.5; cursor: default; }
+
+    &--tracked {
+        border-color: rgba(63, 185, 80, 0.4);
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        cursor: default;
+    }
+}
+
 // ── Download Button ───────────────────────────────────────────────────────────
 .button.primary-button {
     display: flex;

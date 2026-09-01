@@ -314,6 +314,10 @@ $sidebar-width: 260px;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
+    &--bottom {
+        padding: 0.75rem 0.75rem;
+    }
 }
 
 // ── Recent Plans ──────────────────────────────────────────────────────────────

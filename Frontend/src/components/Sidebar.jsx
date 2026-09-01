@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router'
 import { useAuth } from '../features/auth/hooks/useAuth'
 import { useInterview } from '../features/interview/hooks/useInterview'
 import ThemeToggle from './ThemeToggle'
+import SkillTracker from './SkillTracker'
 import './sidebar.scss'
 
 const TIPS = [
@@ -84,7 +85,6 @@ const Sidebar = ({ open, onClose }) => {
                         <p className="sidebar__username">{user?.username || 'User'}</p>
                         <p className="sidebar__email">{user?.email || ''}</p>
                     </div>
-                    {/* Close btn on mobile */}
                     <button className="sidebar__close" onClick={onClose} aria-label="Close sidebar">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -134,6 +134,11 @@ const Sidebar = ({ open, onClose }) => {
 
                 <div className="sidebar__divider" />
 
+                {/* ── Skill Tracker ── */}
+                <SkillTracker />
+
+                <div className="sidebar__divider" />
+
                 {/* ── Interview Tip ── */}
                 <div className="sidebar__tip">
                     <button className="sidebar__tip-toggle" onClick={() => setTipOpen(o => !o)}>
@@ -155,16 +160,7 @@ const Sidebar = ({ open, onClose }) => {
 
                 <div className="sidebar__divider" />
 
-                {/* ── Theme Toggle ── */}
-                <div className="sidebar__theme">
-                    <p className="sidebar__section-label">Appearance</p>
-                    <ThemeToggle />
-                </div>
-
-                {/* ── Spacer ── */}
-                <div style={{ flex: 1 }} />
-
-                {/* ── Recent Plans (mini list) ── */}
+                {/* ── Recent Plans mini list ── */}
                 {reports && reports.length > 0 && (
                     <div className="sidebar__recent">
                         <p className="sidebar__section-label">Recent Plans</p>
@@ -182,6 +178,17 @@ const Sidebar = ({ open, onClose }) => {
                         ))}
                     </div>
                 )}
+
+                {/* ── Spacer ── */}
+                <div style={{ flex: 1 }} />
+
+                <div className="sidebar__divider" />
+
+                {/* ── Theme Toggle — bottom ── */}
+                <div className="sidebar__theme sidebar__theme--bottom">
+                    <p className="sidebar__section-label">Appearance</p>
+                    <ThemeToggle />
+                </div>
 
                 <div className="sidebar__divider" />
 

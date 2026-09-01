@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useParams } from 'react-router'
+import { useSkills } from '../../skills/hooks/useSkills'
 
 const NAV_ITEMS = [
     {
@@ -79,6 +80,8 @@ const Interview = () => {
     const [activeNav, setActiveNav] = useState('technical')
     const { report, loading, getResumePdf } = useInterview()
     const { interviewId } = useParams()
+    const { trackSkill, skills: trackedSkills } = useSkills()
+    const [tracking, setTracking] = useState({}) // { skillName: 'loading'|'done' }
 
     if (loading || !report) {
         return <LoadingScreen />
@@ -212,11 +215,27 @@ const Interview = () => {
                     <div className='skill-gaps'>
                         <p className='skill-gaps__label'>Skill Gaps</p>
                         <div className='skill-gaps__list'>
-                            {report.skillGaps.map((gap, i) => (
-                                <span key={i} className={`skill-tag skill-tag--${gap.severity}`}>
-                                    {gap.skill}
-                                </span>
-                            ))}
+                            {report.skillGaps.map((gap, i) => {
+                                const isTracked = trackedSkills.some(s => s.skill.toLowerCase() === gap.skill.toLowerCase())
+                                const isLoading = tracking[gap.skill] === 'loading'
+                                return (
+                                    <div key={i} className='skill-gap-row'>
+                                        <span className={`skill-tag skill-tag--${gap.severity}`}>{gap.skill}</span>
+                                        <button
+                                            className={`track-btn ${isTracked ? 'track-btn--tracked' : ''}`}
+                                            disabled={isTracked || isLoading}
+                                            onClick={async () => {
+                                                setTracking(t => ({ ...t, [gap.skill]: 'loading' }))
+                                                await trackSkill({ skill: gap.skill, severity: gap.severity, sourceReport: interviewId })
+                                                setTracking(t => ({ ...t, [gap.skill]: 'done' }))
+                                            }}
+                                            title={isTracked ? 'Already tracked' : 'Add to Skill Tracker'}
+                                        >
+                                            {isTracked ? '✓ Tracked' : isLoading ? '...' : '+ Track'}
+                                        </button>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
 

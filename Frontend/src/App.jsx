@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router"
 import { router } from "./app.routes.jsx"
 import { AuthProvider } from "./features/auth/auth.context.jsx"
 import { InterviewProvider } from "./features/interview/interview.context.jsx"
+import { SkillProvider } from "./features/skills/skill.context.jsx"
 import { useEffect } from "react"
 
 // Apply saved theme before first render to avoid flash
@@ -19,7 +20,9 @@ function App() {
   return (
     <AuthProvider>
       <InterviewProvider>
-        <RouterProvider router={router} />
+        <SkillProvider>
+          <RouterProvider router={router} />
+        </SkillProvider>
       </InterviewProvider>
     </AuthProvider>
   )
