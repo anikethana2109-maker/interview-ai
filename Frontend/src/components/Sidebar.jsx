@@ -18,25 +18,12 @@ const TIPS = [
 
 const NAV = [
     {
-        id: 'dashboard',
-        label: 'Dashboard',
-        path: '/',
-        icon: (
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-                <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-            </svg>
-        )
+        id: 'dashboard', label: 'Dashboard', path: '/',
+        icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
     },
     {
-        id: 'new',
-        label: 'New Plan',
-        path: '/',
-        icon: (
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
-            </svg>
-        )
+        id: 'new', label: 'New Plan', path: '/',
+        icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
     },
 ]
 
@@ -46,47 +33,54 @@ const Sidebar = ({ open, onClose }) => {
     const navigate = useNavigate()
     const location = useLocation()
     const [tipOpen, setTipOpen] = useState(false)
+    const [expanded, setExpanded] = useState(false)   // desktop expand state
 
     const initials = user?.username
         ? user.username.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
         : '??'
 
-    const avgScore = reports && reports.length > 0
+    const avgScore = reports?.length
         ? Math.round(reports.reduce((s, r) => s + (r.matchScore || 0), 0) / reports.length)
         : null
 
-    const bestScore = reports && reports.length > 0
+    const bestScore = reports?.length
         ? Math.max(...reports.map(r => r.matchScore || 0))
         : null
 
     const todayTip = TIPS[new Date().getDay() % TIPS.length]
 
-    const doLogout = async () => {
-        await handleLogout()
-        navigate('/login')
-    }
+    const doLogout = async () => { await handleLogout(); navigate('/login') }
+    const goTo = (path) => { navigate(path); onClose?.() }
 
-    const goTo = (path) => {
-        navigate(path)
-        onClose?.()
-    }
+    const sidebarClass = [
+        'sidebar',
+        open     ? 'sidebar--open'     : '',
+        expanded ? 'sidebar--expanded' : '',
+    ].filter(Boolean).join(' ')
 
     return (
         <>
-            {/* Backdrop for mobile */}
             {open && <div className="sidebar-backdrop" onClick={onClose} />}
 
-            <aside className={`sidebar ${open ? 'sidebar--open' : ''}`}>
-
+            <aside
+                className={sidebarClass}
+                onMouseEnter={() => setExpanded(true)}
+                onMouseLeave={() => setExpanded(false)}
+            >
                 {/* ── Profile ── */}
                 <div className="sidebar__profile">
                     <div className="sidebar__avatar">{initials}</div>
-                    <div className="sidebar__user-info">
-                        <p className="sidebar__username">{user?.username || 'User'}</p>
-                        <p className="sidebar__email">{user?.email || ''}</p>
+
+                    {/* Full info — only when expanded */}
+                    <div className="sidebar__expandable" style={{ flex: 1, minWidth: 0, gap: 0 }}>
+                        <div className="sidebar__user-info">
+                            <p className="sidebar__username">{user?.username || 'User'}</p>
+                            <p className="sidebar__email">{user?.email || ''}</p>
+                        </div>
                     </div>
-                    <button className="sidebar__close" onClick={onClose} aria-label="Close sidebar">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+
+                    <button className="sidebar__close" onClick={onClose} aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
@@ -94,9 +88,13 @@ const Sidebar = ({ open, onClose }) => {
 
                 <div className="sidebar__divider" />
 
-                {/* ── Navigation — always visible (icons collapse) ── */}
+                {/* ── Navigation ── */}
                 <nav className="sidebar__nav">
-                    <p className="sidebar__section-label">Navigation</p>
+                    {/* Section label only when expanded */}
+                    <div className="sidebar__expandable">
+                        <p className="sidebar__section-label">Navigation</p>
+                    </div>
+
                     {NAV.map(item => (
                         <button
                             key={item.id}
@@ -110,101 +108,137 @@ const Sidebar = ({ open, onClose }) => {
                     ))}
                 </nav>
 
-                <div className="sidebar__divider sidebar__divider--collapsible" />
+                <div className="sidebar__divider" />
 
                 {/* ── Stats ── */}
                 {reports !== null && (
                     <div className="sidebar__stats">
-                        {/* Compact dots shown when rail is collapsed */}
-                        <div className="sidebar__stats-compact">
-                            <span className="sidebar__stat-dot" title="Plans Made">{reports?.length ?? 0}</span>
-                            <span className="sidebar__stat-dot sidebar__stat-dot--avg" title={`Avg Score: ${avgScore ?? '—'}%`}>{avgScore !== null ? `${avgScore}` : '—'}</span>
-                            <span className="sidebar__stat-dot sidebar__stat-dot--best" title={`Best Score: ${bestScore ?? '—'}%`}>★</span>
+                        {/* Compact dots (collapsed) */}
+                        <div className="sidebar__compact" style={{ padding: '0.5rem 0' }}>
+                            <span className="sidebar__stat-dot" title={`Plans: ${reports?.length ?? 0}`}>
+                                {reports?.length ?? 0}
+                            </span>
+                            <span className="sidebar__stat-dot sidebar__stat-dot--avg" title={`Avg: ${avgScore ?? '—'}%`}>
+                                {avgScore !== null ? avgScore : '—'}
+                            </span>
+                            <span className="sidebar__stat-dot sidebar__stat-dot--best" title={`Best: ${bestScore ?? '—'}%`}>
+                                ★
+                            </span>
                         </div>
-                        {/* Full grid shown when expanded */}
-                        <div className="sidebar__stats-body">
-                            <p className="sidebar__section-label">Your Stats</p>
-                            <div className="sidebar__stat-grid">
-                                <div className="sidebar__stat">
-                                    <span className="sidebar__stat-value">{reports?.length ?? 0}</span>
-                                    <span className="sidebar__stat-label">Plans Made</span>
-                                </div>
-                                <div className="sidebar__stat">
-                                    <span className="sidebar__stat-value">{avgScore !== null ? `${avgScore}%` : '—'}</span>
-                                    <span className="sidebar__stat-label">Avg Score</span>
-                                </div>
-                                <div className="sidebar__stat sidebar__stat--best">
-                                    <span className="sidebar__stat-value">{bestScore !== null ? `${bestScore}%` : '—'}</span>
-                                    <span className="sidebar__stat-label">Best Score</span>
+
+                        {/* Full grid (expanded) */}
+                        <div className="sidebar__expandable">
+                            <div className="sidebar__stats-body">
+                                <p className="sidebar__section-label">Your Stats</p>
+                                <div className="sidebar__stat-grid">
+                                    <div className="sidebar__stat">
+                                        <span className="sidebar__stat-value">{reports?.length ?? 0}</span>
+                                        <span className="sidebar__stat-label">Plans</span>
+                                    </div>
+                                    <div className="sidebar__stat">
+                                        <span className="sidebar__stat-value">{avgScore !== null ? `${avgScore}%` : '—'}</span>
+                                        <span className="sidebar__stat-label">Avg Score</span>
+                                    </div>
+                                    <div className="sidebar__stat sidebar__stat--best">
+                                        <span className="sidebar__stat-value">{bestScore !== null ? `${bestScore}%` : '—'}</span>
+                                        <span className="sidebar__stat-label">Best Score</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="sidebar__divider sidebar__divider--collapsible" />
+                <div className="sidebar__divider" />
 
-                {/* ── Skill Tracker ── */}
-                <SkillTracker />
-
-                <div className="sidebar__divider sidebar__divider--collapsible" />
-
-                {/* ── Interview Tip ── */}
-                <div className="sidebar__tip">
-                    <button className="sidebar__tip-toggle" onClick={() => setTipOpen(o => !o)}>
-                        <span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
-                            Tip of the Day
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                            style={{ transform: tipOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s' }}>
-                            <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                    </button>
-                    <div className={`sidebar__tip-body ${tipOpen ? 'sidebar__tip-body--open' : ''}`}>
-                        <p>{todayTip}</p>
-                    </div>
+                {/* ── Skill Tracker (expanded only) ── */}
+                <div className="sidebar__expandable">
+                    <SkillTracker />
+                </div>
+                {/* Collapsed: tracker icon */}
+                <div className="sidebar__compact" style={{ padding: '0.6rem 0' }}>
+                    <span className="sidebar__stat-dot" title="Skill Tracker" style={{ fontSize: '1rem' }}>
+                        ⚡
+                    </span>
                 </div>
 
-                <div className="sidebar__divider sidebar__divider--collapsible" />
+                <div className="sidebar__divider" />
 
-                {/* ── Recent Plans ── */}
-                {reports && reports.length > 0 && (
-                    <div className="sidebar__recent">
-                        <p className="sidebar__section-label">Recent Plans</p>
-                        {reports.slice(0, 3).map(r => (
-                            <button
-                                key={r._id}
-                                className="sidebar__recent-item"
-                                onClick={() => goTo(`/interview/${r._id}`)}
-                            >
-                                <span className="sidebar__recent-title">{r.title || 'Untitled'}</span>
-                                <span className={`sidebar__recent-score ${r.matchScore >= 80 ? 'score--high' : r.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>
-                                    {r.matchScore}%
-                                </span>
-                            </button>
-                        ))}
+                {/* ── Tip of the Day (expanded only) ── */}
+                <div className="sidebar__expandable">
+                    <div className="sidebar__tip">
+                        <button className="sidebar__tip-toggle" onClick={() => setTipOpen(o => !o)}>
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                Tip of the Day
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                style={{ transform: tipOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.25s', flexShrink: 0 }}>
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </button>
+                        <div className={`sidebar__tip-body ${tipOpen ? 'sidebar__tip-body--open' : ''}`}>
+                            <p>{todayTip}</p>
+                        </div>
                     </div>
+                </div>
+                {/* Collapsed: tip icon */}
+                <div className="sidebar__compact" style={{ padding: '0.6rem 0' }}>
+                    <span className="sidebar__stat-dot" title="Tip of the Day" style={{ fontSize: '1rem' }}>
+                        💡
+                    </span>
+                </div>
+
+                <div className="sidebar__divider" />
+
+                {/* ── Recent Plans (expanded only) ── */}
+                {reports && reports.length > 0 && (
+                    <>
+                        <div className="sidebar__expandable">
+                            <div className="sidebar__recent">
+                                <p className="sidebar__section-label">Recent Plans</p>
+                                {reports.slice(0, 3).map(r => (
+                                    <button
+                                        key={r._id}
+                                        className="sidebar__recent-item"
+                                        onClick={() => goTo(`/interview/${r._id}`)}
+                                    >
+                                        <span className="sidebar__recent-title">{r.title || 'Untitled'}</span>
+                                        <span className={`sidebar__recent-score ${r.matchScore >= 80 ? 'score--high' : r.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>
+                                            {r.matchScore}%
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="sidebar__divider" />
+                    </>
                 )}
 
-                {/* ── Spacer (pushes theme + logout to bottom) ── */}
+                {/* ── Spacer ── */}
                 <div className="sidebar__spacer" />
 
-                <div className="sidebar__divider sidebar__divider--collapsible" />
-
-                {/* ── Theme Toggle — bottom ── */}
-                <div className="sidebar__theme sidebar__theme--bottom">
-                    <p className="sidebar__section-label">Appearance</p>
-                    <ThemeToggle />
+                {/* ── Theme Toggle (expanded only) ── */}
+                <div className="sidebar__expandable">
+                    <div className="sidebar__theme sidebar__theme--bottom">
+                        <p className="sidebar__section-label">Appearance</p>
+                        <ThemeToggle />
+                    </div>
+                </div>
+                {/* Collapsed theme icon */}
+                <div className="sidebar__compact" style={{ padding: '0.5rem 0' }}>
+                    <span className="sidebar__stat-dot" title="Theme" style={{ fontSize: '1rem' }}>
+                        🌙
+                    </span>
                 </div>
 
                 <div className="sidebar__divider" />
 
                 {/* ── Logout ── */}
                 <button className="sidebar__logout" onClick={doLogout} title="Sign Out">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />

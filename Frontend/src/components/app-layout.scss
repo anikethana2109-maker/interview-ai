@@ -1,5 +1,5 @@
 // ── App Layout ────────────────────────────────────────────────────────────────
-// Sidebar collapses to 64px icon rail on desktop, full 260px on hover (overlay)
+// Sidebar: 64px collapsed icon rail on desktop, 280px on hover (overlay)
 
 .app-layout {
     display: flex;
@@ -12,14 +12,13 @@
     flex: 1;
     min-width: 0;
 
-    // Desktop: offset by collapsed sidebar width only
-    // Sidebar expands on hover as an overlay over content (with shadow)
+    // Desktop: offset by 64px (collapsed sidebar width)
+    // Sidebar expands as overlay — no content reflow
     @media (min-width: 901px) {
         margin-left: 64px;
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    // Mobile: full width + padding for hamburger button
+    // Mobile: full width, top padding for hamburger button
     @media (max-width: 900px) {
         margin-left: 0;
         padding-top: 3.5rem;

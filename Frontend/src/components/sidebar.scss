@@ -1,201 +1,134 @@
-// ── Sidebar Styles ────────────────────────────────────────────────────────────
-// Uses CSS custom properties from style.scss
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+// Two states: collapsed (64px icon rail) and expanded (280px full)
+// State is driven by JS (onMouseEnter / onMouseLeave) for reliability
 
-$sidebar-width:     260px;
-$sidebar-collapsed: 64px;
-$ease:              cubic-bezier(0.4, 0, 0.2, 1);
+$w-collapsed:  64px;
+$w-expanded:  280px;
+$ease:         cubic-bezier(0.4, 0, 0.2, 1);
+$dur:          0.3s;
 
+// ── Base shell ────────────────────────────────────────────────────────────────
 .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
+    width: $w-collapsed;
     background: var(--bg-card);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    gap: 0;
-    padding: 0;
     z-index: 300;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     transition:
-        width      0.32s $ease,
-        box-shadow 0.32s $ease,
-        transform  0.32s $ease,
+        width      $dur $ease,
+        box-shadow $dur $ease,
         background-color 0.3s;
 
-    // ── Desktop: collapsed icon rail ──────────────────────────────────────────
+    // Desktop: always rendered, width animates
     @media (min-width: 901px) {
-        width: $sidebar-collapsed;
-        box-shadow: none;
-        transform: translateX(0) !important;
+        transform: none !important;
 
-        // ── Things that completely collapse (height + opacity) ──
-        .sidebar__user-info,
-        .sidebar__section-label,
-        .sidebar__stats-body,
-        .sidebar__tip,
-        .sidebar__recent,
-        .sidebar__theme,
-        .skill-tracker,
-        .sidebar__spacer {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            margin: 0 !important;
-            pointer-events: none;
-            transition:
-                max-height 0.32s $ease,
-                opacity    0.2s ease,
-                padding    0.32s $ease;
-        }
+        // ─── Expanded ──────────────────────────────────────────────────────────
+        &--expanded {
+            width: $w-expanded;
+            box-shadow: 6px 0 32px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
 
-        // ── Text-only things that just fade ──
-        .sidebar__label-text,
-        .sidebar__logout-text {
-            opacity: 0;
-            transition: opacity 0.18s ease;
-        }
-
-        // ── Dividers also collapse ──
-        .sidebar__divider--collapsible {
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.32s $ease, opacity 0.2s ease;
-        }
-
-        // ── Nav centered icon-only ──
-        .sidebar__nav-item {
-            justify-content: center;
-            padding: 0.7rem;
-        }
-
-        // ── Profile centered ──
-        .sidebar__profile {
-            justify-content: center;
-            padding: 1.25rem 0.5rem;
-            transition: padding 0.32s $ease, justify-content 0.32s $ease;
-        }
-
-        // ── Stats: show compact icon-dots row ──
-        .sidebar__stat-grid {
-            display: none;
-        }
-        .sidebar__stats-compact {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.5rem 0;
-        }
-
-        // ── Logout centered icon ──
-        .sidebar__logout {
-            justify-content: center;
-            padding: 1rem 0.5rem;
-            transition: padding 0.32s $ease;
-        }
-
-        .sidebar__close { display: none !important; }
-
-        // ── HOVER: expand everything ──────────────────────────────────────────
-        &:hover {
-            width: $sidebar-width;
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
-
-            .sidebar__user-info,
-            .sidebar__section-label,
-            .sidebar__stats-body,
-            .sidebar__tip,
-            .sidebar__recent,
-            .sidebar__theme,
-            .skill-tracker,
-            .sidebar__spacer {
-                max-height: 600px;
-                opacity: 1;
-                pointer-events: auto;
-            }
+            .sidebar__expandable { display: flex; }
+            .sidebar__compact     { display: none;  }
 
             .sidebar__label-text,
-            .sidebar__logout-text {
-                opacity: 1;
-            }
-
-            .sidebar__divider--collapsible {
-                max-height: 1px;
-                opacity: 1;
-            }
+            .sidebar__logout-text { opacity: 1; width: auto; }
 
             .sidebar__nav-item {
                 justify-content: flex-start;
-                padding: 0.65rem 0.875rem;
+                padding: 0.65rem 1rem;
+                gap: 0.75rem;
             }
 
             .sidebar__profile {
                 justify-content: flex-start;
-                padding: 1.5rem 1.25rem 1.25rem;
-            }
-
-            .sidebar__stat-grid {
-                display: grid;
-            }
-            .sidebar__stats-compact {
-                display: none;
+                padding: 1.25rem 1.25rem 1rem;
+                gap: 0.75rem;
             }
 
             .sidebar__logout {
                 justify-content: flex-start;
                 padding: 1rem 1.25rem;
+                gap: 0.75rem;
             }
+
+            .sidebar__nav { padding: 0.75rem 0.625rem; }
         }
+
+        // ─── Collapsed (default) ───────────────────────────────────────────────
+        .sidebar__expandable { display: none;  }
+        .sidebar__compact     { display: flex; }
+
+        .sidebar__label-text,
+        .sidebar__logout-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar__nav-item {
+            justify-content: center;
+            padding: 0.65rem;
+            gap: 0;
+        }
+
+        .sidebar__profile {
+            justify-content: center;
+            padding: 1.25rem 0.5rem 1rem;
+            gap: 0;
+        }
+
+        .sidebar__logout {
+            justify-content: center;
+            padding: 1rem 0;
+            gap: 0;
+        }
+
+        .sidebar__close { display: none !important; }
+        .sidebar__nav { padding: 0.75rem 0.5rem; }
     }
 
-    // ── Mobile: overlay ───────────────────────────────────────────────────────
+    // ── Mobile: full-width overlay ─────────────────────────────────────────────
     @media (max-width: 900px) {
-        width: $sidebar-width;
+        width: $w-expanded;
         transform: translateX(-100%);
-        box-shadow: var(--shadow-hover);
+        overflow-y: auto;
+        transition: transform $dur $ease, background-color 0.3s;
 
         &--open {
             transform: translateX(0);
+            box-shadow: 6px 0 32px rgba(0, 0, 0, 0.25);
         }
 
-        // Always show everything on mobile
-        .sidebar__user-info,
-        .sidebar__section-label,
-        .sidebar__stats-body,
-        .sidebar__tip,
-        .sidebar__recent,
-        .sidebar__theme,
-        .skill-tracker,
-        .sidebar__spacer,
+        // Everything visible on mobile
+        .sidebar__expandable { display: flex !important; }
+        .sidebar__compact     { display: none  !important; }
         .sidebar__label-text,
-        .sidebar__logout-text,
-        .sidebar__divider--collapsible {
-            max-height: 600px !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-        }
-
-        .sidebar__stats-compact { display: none !important; }
-        .sidebar__stat-grid     { display: grid !important; }
+        .sidebar__logout-text { opacity: 1 !important; width: auto !important; }
+        .sidebar__nav-item  { justify-content: flex-start !important; padding: 0.65rem 1rem !important; gap: 0.75rem !important; }
+        .sidebar__profile   { justify-content: flex-start !important; padding: 1.25rem 1.25rem 1rem !important; gap: 0.75rem !important; }
+        .sidebar__logout    { justify-content: flex-start !important; padding: 1rem 1.25rem !important; gap: 0.75rem !important; }
+        .sidebar__nav       { padding: 0.75rem 0.625rem !important; }
     }
 }
 
 // ── Backdrop ──────────────────────────────────────────────────────────────────
 .sidebar-backdrop {
     display: none;
-
     @media (max-width: 900px) {
         display: block;
         position: fixed;
         inset: 0;
         z-index: 299;
-        background: rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(2px);
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
         animation: fadeIn 0.2s ease;
     }
 }
@@ -204,51 +137,49 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
 .sidebar__profile {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem 1.25rem 1.25rem;
+    gap: 0;
+    padding: 1.25rem 0.5rem 1rem;
     background: linear-gradient(135deg,
-        rgba(var(--accent-rgb), 0.12) 0%,
-        rgba(var(--accent-rgb), 0.04) 100%
+        rgba(var(--accent-rgb), 0.1) 0%,
+        rgba(var(--accent-rgb), 0.03) 100%
     );
-    position: relative;
-    animation: fadeInUp 0.4s ease both;
+    flex-shrink: 0;
+    transition: padding $dur $ease, gap $dur $ease, justify-content $dur $ease;
 }
 
 .sidebar__avatar {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.6));
+    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.55));
     color: #fff;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    letter-spacing: 0.03em;
-    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.35);
-    animation: pulse-ring 3s ease-in-out infinite;
+    letter-spacing: 0.02em;
+    box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.35);
 }
 
 .sidebar__user-info {
-    flex: 1;
     min-width: 0;
+    flex: 1;
 }
 
 .sidebar__username {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    letter-spacing: -0.01em;
 }
 
 .sidebar__email {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     margin: 0.1rem 0 0;
     white-space: nowrap;
@@ -263,79 +194,66 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-muted);
     display: flex;
     align-items: center;
-    padding: 0.25rem;
-    border-radius: 0.4rem;
-    transition: color 0.15s, background 0.15s;
+    padding: 0.2rem;
+    border-radius: 0.35rem;
     flex-shrink: 0;
-
-    &:hover {
-        color: var(--text-primary);
-        background: var(--bg-panel);
-    }
-
-    // Only visible on mobile
-    @media (min-width: 901px) {
-        display: none;
-    }
+    transition: color 0.15s, background 0.15s;
+    &:hover { color: var(--text-primary); background: var(--bg-panel); }
+    @media (min-width: 901px) { display: none !important; }
 }
 
 // ── Divider ───────────────────────────────────────────────────────────────────
 .sidebar__divider {
     height: 1px;
     background: var(--border-color);
-    margin: 0;
     flex-shrink: 0;
 }
 
-// ── Section Label ─────────────────────────────────────────────────────────────
+// ── Section label ─────────────────────────────────────────────────────────────
 .sidebar__section-label {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--text-muted);
-    padding: 0 1.25rem;
-    margin-bottom: 0.4rem;
+    padding: 0 0.75rem;
+    margin: 0 0 0.35rem;
 }
 
-// ── Navigation ────────────────────────────────────────────────────────────────
+// ── Nav ───────────────────────────────────────────────────────────────────────
 .sidebar__nav {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
-    padding: 1rem 0.75rem 0.75rem;
+    gap: 0.1rem;
+    padding: 0.75rem 0.5rem;
+    flex-shrink: 0;
+    transition: padding $dur $ease;
 }
 
 .sidebar__nav-item {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0;
     width: 100%;
-    padding: 0.65rem 0.875rem;
+    padding: 0.65rem;
     background: none;
     border: none;
-    border-radius: 0.6rem;
+    border-radius: 0.55rem;
     color: var(--text-muted);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
     text-align: left;
-    overflow: hidden;  // clips label text during collapse animation
     white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s, transform 0.15s, padding 0.3s, justify-content 0.3s;
+    overflow: hidden;
+    transition: background 0.15s, color 0.15s, padding $dur $ease, gap $dur $ease;
 
-    &:hover {
-        background: var(--bg-panel);
-        color: var(--text-primary);
-        transform: translateX(3px);
-    }
-
+    &:hover { background: var(--bg-panel); color: var(--text-primary); }
     &--active {
-        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0.06));
+        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.13), rgba(var(--accent-rgb), 0.05));
         color: var(--accent);
         font-weight: 700;
-
         svg { stroke: var(--accent); }
     }
 }
@@ -346,90 +264,88 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
 }
 
-// ── Label text (fades out in collapsed state) ─────────────────────────────────
+// ── Label text (fades out/in with width) ──────────────────────────────────────
 .sidebar__label-text,
 .sidebar__logout-text {
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
-    transition: opacity 0.2s ease;
+    transition: opacity $dur $ease, width $dur $ease;
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
-.sidebar__stats {
-    padding: 1rem 0.75rem 0.875rem;
+// ── Expandable sections (hidden in collapsed rail) ────────────────────────────
+// .sidebar__expandable: shown only when --expanded
+// .sidebar__compact:    shown only when collapsed
+
+.sidebar__expandable {
+    flex-direction: column;
+    width: 100%;
 }
 
-// ── Spacer (flex:1 pushes items to bottom) ────────────────────────────────────
-.sidebar__spacer {
-    flex: 1;
-    min-height: 0.5rem;
-}
-
-// ── Compact stat dots (shown in collapsed rail) ───────────────────────────────
-.sidebar__stats-compact {
-    display: none; // default hidden; desktop collapsed shows it via JS class
+.sidebar__compact {
     flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
+    width: 100%;
     padding: 0.5rem 0;
+    gap: 0.4rem;
 }
 
+// ── Compact stat dots ─────────────────────────────────────────────────────────
 .sidebar__stat-dot {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 30px;
     border-radius: 0.5rem;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 800;
     background: var(--bg-panel);
     border: 1px solid var(--border-color);
     color: var(--accent);
     cursor: default;
-
     &--avg  { color: #f5a623; }
-    &--best { color: #3fb950; }
+    &--best { color: #3fb950; font-size: 0.85rem; }
+}
+
+// ── Stats full grid ───────────────────────────────────────────────────────────
+.sidebar__stats {
+    flex-shrink: 0;
+}
+
+.sidebar__stats-body {
+    padding: 0.75rem 0.625rem;
 }
 
 .sidebar__stat-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-top: 0.1rem;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
 }
 
 .sidebar__stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.2rem;
-    padding: 0.75rem 0.5rem;
+    gap: 0.15rem;
+    padding: 0.6rem 0.4rem;
     background: var(--bg-panel);
     border: 1px solid var(--border-color);
-    border-radius: 0.75rem;
+    border-radius: 0.65rem;
     transition: transform 0.15s, border-color 0.15s;
 
-    &:hover {
-        transform: translateY(-2px);
-        border-color: rgba(var(--accent-rgb), 0.4);
-    }
+    &:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb), 0.35); }
 
     &--best {
         grid-column: 1 / -1;
-        background: linear-gradient(135deg,
-            rgba(63, 185, 80, 0.1),
-            rgba(63, 185, 80, 0.04)
-        );
-        border-color: rgba(63, 185, 80, 0.25);
-
+        background: linear-gradient(135deg, rgba(63,185,80,0.09), rgba(63,185,80,0.03));
+        border-color: rgba(63,185,80,0.22);
         .sidebar__stat-value { color: #3fb950; }
     }
 }
 
 .sidebar__stat-value {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: var(--accent);
     line-height: 1;
@@ -437,7 +353,7 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar__stat-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
@@ -445,9 +361,10 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
 }
 
-// ── Tip of the Day ────────────────────────────────────────────────────────────
+// ── Tip of the day ────────────────────────────────────────────────────────────
 .sidebar__tip {
-    padding: 0.875rem 0.75rem;
+    padding: 0.75rem 0.625rem;
+    flex-shrink: 0;
 }
 
 .sidebar__tip-toggle {
@@ -455,43 +372,32 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0.6rem 0.875rem;
+    padding: 0.55rem 0.75rem;
     background: rgba(var(--accent-rgb), 0.06);
     border: 1px solid rgba(var(--accent-rgb), 0.18);
-    border-radius: 0.6rem;
+    border-radius: 0.55rem;
     cursor: pointer;
     color: var(--accent);
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s;
 
-    > span {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    &:hover {
-        background: rgba(var(--accent-rgb), 0.1);
-        border-color: rgba(var(--accent-rgb), 0.3);
-    }
+    > span { display: flex; align-items: center; gap: 0.4rem; }
+    &:hover { background: rgba(var(--accent-rgb), 0.1); }
 }
 
 .sidebar__tip-body {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s;
     opacity: 0;
+    transition: max-height 0.35s $ease, opacity 0.25s;
 
-    &--open {
-        max-height: 200px;
-        opacity: 1;
-    }
+    &--open { max-height: 200px; opacity: 1; }
 
     p {
-        padding: 0.75rem 0.875rem 0;
-        font-size: 0.8rem;
+        padding: 0.65rem 0.5rem 0;
+        font-size: 0.78rem;
         color: var(--text-muted);
         line-height: 1.65;
         margin: 0;
@@ -499,49 +405,31 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
-// ── Theme ─────────────────────────────────────────────────────────────────────
-.sidebar__theme {
-    padding: 0.875rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    &--bottom {
-        padding: 0.75rem 0.75rem;
-    }
-}
-
 // ── Recent Plans ──────────────────────────────────────────────────────────────
 .sidebar__recent {
-    padding: 0.875rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
+    padding: 0.75rem 0.625rem;
+    flex-shrink: 0;
 }
 
 .sidebar__recent-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.55rem 0.875rem;
+    gap: 0.4rem;
+    padding: 0.45rem 0.6rem;
     background: none;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: 0.45rem;
     cursor: pointer;
     width: 100%;
-    text-align: left;
-    transition: background 0.15s, transform 0.15s;
     font-family: 'Inter', system-ui, sans-serif;
+    transition: background 0.15s;
 
-    &:hover {
-        background: var(--bg-panel);
-        transform: translateX(2px);
-    }
+    &:hover { background: var(--bg-panel); }
 }
 
 .sidebar__recent-title {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--text-primary);
     font-weight: 500;
     white-space: nowrap;
@@ -551,23 +439,37 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar__recent-score {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     flex-shrink: 0;
-    padding: 0.1rem 0.4rem;
-    border-radius: 0.3rem;
-
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
     &.score--high { color: #3fb950; background: rgba(63,185,80,0.1); }
     &.score--mid  { color: #f5a623; background: rgba(245,166,35,0.1); }
     &.score--low  { color: #ff4d4d; background: rgba(255,77,77,0.1); }
+}
+
+// ── Spacer ────────────────────────────────────────────────────────────────────
+.sidebar__spacer { flex: 1; min-height: 0; }
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+.sidebar__theme {
+    padding: 0.75rem 0.625rem;
+    flex-shrink: 0;
+
+    &--bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+    }
 }
 
 // ── Logout ────────────────────────────────────────────────────────────────────
 .sidebar__logout {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    padding: 1rem 1.25rem;
+    gap: 0;
+    padding: 1rem 0;
     background: none;
     border: none;
     border-top: 1px solid var(--border-color);
@@ -577,20 +479,16 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
     cursor: pointer;
     width: 100%;
-    text-align: left;
-    transition: color 0.15s, background 0.15s;
+    justify-content: center;
     flex-shrink: 0;
+    transition: color 0.15s, background 0.15s, padding $dur $ease, gap $dur $ease;
 
-    &:hover {
-        color: #ff4d4d;
-        background: rgba(255, 77, 77, 0.06);
-    }
+    &:hover { color: #ff4d4d; background: rgba(255,77,77,0.06); }
 }
 
-// ── Hamburger button (mobile only) ───────────────────────────────────────────
+// ── Hamburger (mobile only) ───────────────────────────────────────────────────
 .sidebar-hamburger {
     display: none;
-
     @media (max-width: 900px) {
         display: flex;
         position: fixed;
@@ -603,11 +501,11 @@ $ease:              cubic-bezier(0.4, 0, 0.2, 1);
         height: 40px;
         background: var(--bg-card);
         border: 1px solid var(--border-color);
-        border-radius: 0.6rem;
+        border-radius: 0.55rem;
         cursor: pointer;
         color: var(--text-primary);
         box-shadow: var(--shadow-sm);
-        transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+        transition: border-color 0.15s, box-shadow 0.15s;
 
         &:hover {
             border-color: var(--accent);
