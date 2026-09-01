@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
+import ThemeToggle from '../../../components/ThemeToggle'
 
 const Login = () => {
     const { loading, handleLogin } = useAuth()
@@ -36,6 +37,7 @@ const Login = () => {
 
     return (
         <main>
+            <div className="auth-theme-toggle"><ThemeToggle /></div>
             <div className="form-container">
                 <h1>Welcome Back</h1>
                 <p className="form-subtitle">Sign in to your account</p>

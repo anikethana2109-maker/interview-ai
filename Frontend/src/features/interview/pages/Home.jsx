@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
+import ThemeToggle from '../../../components/ThemeToggle'
 
 const Home = () => {
     const { generateReport, reports } = useInterview()
@@ -76,6 +77,11 @@ const Home = () => {
     return (
         <div className='home-page'>
 
+            {/* Fixed theme toggle */}
+            <div className="home-topbar">
+                <ThemeToggle />
+            </div>
+
             {/* Page Header */}
             <header className='page-header'>
                 <h1>Create Your Custom <span className='highlight'>Interview Plan</span></h1>
@@ -112,7 +118,7 @@ const Home = () => {
                         <div className='char-counter'>{jobDescription.length} / 5000 chars</div>
                     </div>
 
-                    {/* Vertical Divider */}
+                    {/* Vertical / Horizontal Divider */}
                     <div className='panel-divider' />
 
                     {/* Right Panel - Profile */}
@@ -136,9 +142,9 @@ const Home = () => {
                                         <span className='dropzone__icon' style={{ color: '#10b981' }}>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="m9 15 2 2 4-4" /></svg>
                                         </span>
-                                        <p className='dropzone__title' style={{ color: '#10b981', fontWeight: 600 }}>{selectedFile.name}</p>
+                                        <p className='dropzone__title' style={{ color: '#10b981', fontWeight: 700 }}>{selectedFile.name}</p>
                                         <p className='dropzone__subtitle'>{(selectedFile.size / 1024).toFixed(1)} KB &bull; PDF ready</p>
-                                        <button type="button" onClick={handleRemoveFile} style={{ marginTop: "0.25rem", background: "none", border: "none", color: "#e1034d", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline" }}>
+                                        <button type="button" onClick={handleRemoveFile} style={{ marginTop: "0.25rem", background: "none", border: "none", color: "var(--accent)", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", fontFamily: "inherit" }}>
                                             Remove file
                                         </button>
                                     </div>
@@ -182,7 +188,7 @@ const Home = () => {
                         {/* Info Box */}
                         <div className='info-box'>
                             <span className='info-box__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" stroke="#1a1f27" strokeWidth="2" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="#1a1f27" strokeWidth="2" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" stroke="var(--bg-card)" strokeWidth="2" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="var(--bg-card)" strokeWidth="2" /></svg>
                             </span>
                             <p>Either a <strong>Resume PDF</strong> or a <strong>Self Description</strong> is required to generate a personalized plan.</p>
                         </div>
@@ -203,7 +209,7 @@ const Home = () => {
             {reports && reports.length > 0 && (
                 <section className='recent-reports'>
                     <h2>My Recent Interview Plans</h2>
-                    <ul className='reports-list'>
+                    <ul className='reports-list' style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                         {reports.map(report => (
                             <li key={report._id} className='report-item' onClick={() => navigate(`/interview/${report._id}`)}>
                                 <h3>{report.title || 'Untitled Position'}</h3>

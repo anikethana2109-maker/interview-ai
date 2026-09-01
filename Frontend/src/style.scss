@@ -1,8 +1,52 @@
 @use "./style/button.scss";
 
+// ── Google Font ───────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+// ── CSS Custom Properties ─────────────────────────────────────────────────────
+:root {
+    // Light theme (default)
+    --bg-page:        #f5f6fa;
+    --bg-card:        #ffffff;
+    --bg-panel:       #f0f2f7;
+    --bg-input:       #f5f6fa;
+    --border-color:   #dfe3eb;
+    --text-primary:   #1a1a2e;
+    --text-muted:     #6b7280;
+    --accent:         #e1034d;
+    --accent-rgb:     225, 3, 77;
+    --accent-alt:     #ff6b9d;
+    --info-bg:        #eef4ff;
+    --info-border:    #c7d9f5;
+    --info-text:      #3b7ddd;
+    --shadow-sm:      0 1px 4px rgba(0,0,0,0.08);
+    --shadow-md:      0 4px 20px rgba(0,0,0,0.10);
+    --shadow-hover:   0 8px 30px rgba(0,0,0,0.14);
+}
+
+[data-theme="dark"] {
+    --bg-page:        #0f1117;
+    --bg-card:        #1a1d26;
+    --bg-panel:       #22263a;
+    --bg-input:       #1e2230;
+    --border-color:   #2e3347;
+    --text-primary:   #e8eaf0;
+    --text-muted:     #8b92a8;
+    --accent:         #ff2060;
+    --accent-rgb:     255, 32, 96;
+    --accent-alt:     #ff6b9d;
+    --info-bg:        rgba(37, 99, 235, 0.12);
+    --info-border:    rgba(37, 99, 235, 0.3);
+    --info-text:      #60a5fa;
+    --shadow-sm:      0 1px 4px rgba(0,0,0,0.3);
+    --shadow-md:      0 4px 20px rgba(0,0,0,0.4);
+    --shadow-hover:   0 8px 30px rgba(0,0,0,0.5);
+}
+
+// ── Global Reset ──────────────────────────────────────────────────────────────
 * {
-    margin: 0%;
-    padding: 0%;
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -10,16 +54,68 @@ html,
 body,
 #root {
     width: 100%;
-    background-color: #f8f9fb;
-    color: #1a1a2e;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// ── Global Keyframes ──────────────────────────────────────────────────────────
+@keyframes globalSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+@keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+    50%       { box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 .highlight {
-    color: #d20d3b;
+    color: var(--accent);
 }
 
-/* ── Global Loading Screen ── */
+// ── Global Loading Screen ─────────────────────────────────────────────────────
 .loading-screen {
     min-height: 100vh;
     width: 100%;
@@ -27,48 +123,115 @@ body,
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    background-color: #f8f9fb;
+    gap: 1.5rem;
+    background-color: var(--bg-page);
+    animation: fadeIn 0.4s ease;
 
     h2 {
         font-size: 1.25rem;
         font-weight: 600;
-        color: #1a1a2e;
+        color: var(--text-primary);
+        animation: fadeInUp 0.5s ease 0.2s both;
     }
 
     p {
-        color: #6b7280;
+        color: var(--text-muted);
         font-size: 0.9rem;
+        animation: fadeInUp 0.5s ease 0.35s both;
     }
 }
 
 .loading-spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid #e5e9f0;
-    border-top-color: #e1034d;
+    width: 52px;
+    height: 52px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--accent);
     border-radius: 50%;
-    animation: globalSpin 0.8s linear infinite;
+    animation: globalSpin 0.75s linear infinite;
 }
 
-@keyframes globalSpin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* ── Global form error banner ── */
+// ── Global form error banner ──────────────────────────────────────────────────
 .form-error-banner {
     max-width: 960px;
     margin: 0 auto 1.5rem auto;
     padding: 0.875rem 1.25rem;
-    background-color: rgba(225, 3, 77, 0.08);
-    border: 1px solid rgba(225, 3, 77, 0.35);
+    background-color: rgba(var(--accent-rgb), 0.08);
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
     border-radius: 0.6rem;
-    color: #e1034d;
+    color: var(--accent);
     font-size: 0.875rem;
     font-weight: 500;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    animation: fadeInUp 0.3s ease;
+}
+
+// ── Theme Toggle Component ────────────────────────────────────────────────────
+.theme-toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 2rem;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+    }
+
+    &__track {
+        position: relative;
+        width: 32px;
+        height: 16px;
+        background: var(--border-color);
+        border-radius: 1rem;
+        transition: background-color 0.3s;
+        flex-shrink: 0;
+    }
+
+    &__thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        [data-theme="dark"] & {
+            transform: translateX(16px);
+        }
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        color: var(--text-muted);
+        transition: color 0.2s, opacity 0.2s;
+
+        &--sun {
+            opacity: 1;
+            color: #f59e0b;
+
+            [data-theme="dark"] & {
+                opacity: 0.4;
+            }
+        }
+
+        &--moon {
+            opacity: 0.4;
+
+            [data-theme="dark"] & {
+                opacity: 1;
+                color: var(--accent-alt);
+            }
+        }
+    }
 }
