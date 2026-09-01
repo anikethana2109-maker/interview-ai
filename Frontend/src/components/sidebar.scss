@@ -3,6 +3,7 @@
 
 $sidebar-width:     260px;
 $sidebar-collapsed: 64px;
+$ease:              cubic-bezier(0.4, 0, 0.2, 1);
 
 .sidebar {
     position: fixed;
@@ -19,90 +20,132 @@ $sidebar-collapsed: 64px;
     overflow-y: auto;
     overflow-x: hidden;
     transition:
-        width       0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow  0.3s ease,
-        transform   0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        width      0.32s $ease,
+        box-shadow 0.32s $ease,
+        transform  0.32s $ease,
         background-color 0.3s;
 
-    // ── Desktop: collapsed icon rail by default, expands on hover ──
+    // ── Desktop: collapsed icon rail ──────────────────────────────────────────
     @media (min-width: 901px) {
         width: $sidebar-collapsed;
         box-shadow: none;
         transform: translateX(0) !important;
 
-        &:hover {
-            width: $sidebar-width;
-            box-shadow: var(--shadow-hover);
-            // Expand: show all hidden text
-            .sidebar__label-text,
-            .sidebar__user-info,
-            .sidebar__section-label,
-            .sidebar__stat-label,
-            .sidebar__tip,
-            .sidebar__recent,
-            .sidebar__theme,
-            .sidebar__logout-text,
-            .skill-tracker {
-                opacity: 1;
-                pointer-events: auto;
-            }
-            .sidebar__avatar {
-                animation: pulse-ring 3s ease-in-out infinite;
-            }
-        }
-
-        // Collapsed state — hide text, keep icons
-        .sidebar__label-text,
+        // ── Things that completely collapse (height + opacity) ──
         .sidebar__user-info,
         .sidebar__section-label,
-        .sidebar__stat-label,
+        .sidebar__stats-body,
         .sidebar__tip,
         .sidebar__recent,
         .sidebar__theme,
-        .sidebar__logout-text,
-        .skill-tracker {
+        .skill-tracker,
+        .sidebar__spacer {
+            max-height: 0;
+            overflow: hidden;
             opacity: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin: 0 !important;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            transition:
+                max-height 0.32s $ease,
+                opacity    0.2s ease,
+                padding    0.32s $ease;
         }
 
-        // Stat grid stacks to icons in collapsed
-        .sidebar__stat-grid {
-            flex-direction: column;
+        // ── Text-only things that just fade ──
+        .sidebar__label-text,
+        .sidebar__logout-text {
+            opacity: 0;
+            transition: opacity 0.18s ease;
         }
 
-        // Nav items — icon only when collapsed
+        // ── Dividers also collapse ──
+        .sidebar__divider--collapsible {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.32s $ease, opacity 0.2s ease;
+        }
+
+        // ── Nav centered icon-only ──
         .sidebar__nav-item {
             justify-content: center;
             padding: 0.7rem;
-            span.sidebar__nav-icon { margin: 0; }
         }
 
-        // Profile — avatar centered when collapsed
+        // ── Profile centered ──
         .sidebar__profile {
             justify-content: center;
             padding: 1.25rem 0.5rem;
+            transition: padding 0.32s $ease, justify-content 0.32s $ease;
         }
 
-        // Logout — icon only
+        // ── Stats: show compact icon-dots row ──
+        .sidebar__stat-grid {
+            display: none;
+        }
+        .sidebar__stats-compact {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem 0;
+        }
+
+        // ── Logout centered icon ──
         .sidebar__logout {
             justify-content: center;
             padding: 1rem 0.5rem;
+            transition: padding 0.32s $ease;
         }
 
-        // Close button never shown on desktop
-        .sidebar__close { display: none; }
+        .sidebar__close { display: none !important; }
 
-        // Expanded state
+        // ── HOVER: expand everything ──────────────────────────────────────────
         &:hover {
+            width: $sidebar-width;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+
+            .sidebar__user-info,
+            .sidebar__section-label,
+            .sidebar__stats-body,
+            .sidebar__tip,
+            .sidebar__recent,
+            .sidebar__theme,
+            .skill-tracker,
+            .sidebar__spacer {
+                max-height: 600px;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .sidebar__label-text,
+            .sidebar__logout-text {
+                opacity: 1;
+            }
+
+            .sidebar__divider--collapsible {
+                max-height: 1px;
+                opacity: 1;
+            }
+
             .sidebar__nav-item {
                 justify-content: flex-start;
-                padding: 0.7rem 0.875rem;
+                padding: 0.65rem 0.875rem;
             }
+
             .sidebar__profile {
                 justify-content: flex-start;
                 padding: 1.5rem 1.25rem 1.25rem;
             }
+
+            .sidebar__stat-grid {
+                display: grid;
+            }
+            .sidebar__stats-compact {
+                display: none;
+            }
+
             .sidebar__logout {
                 justify-content: flex-start;
                 padding: 1rem 1.25rem;
@@ -110,7 +153,7 @@ $sidebar-collapsed: 64px;
         }
     }
 
-    // ── Mobile: hidden by default, slides in when .sidebar--open ──
+    // ── Mobile: overlay ───────────────────────────────────────────────────────
     @media (max-width: 900px) {
         width: $sidebar-width;
         transform: translateX(-100%);
@@ -119,9 +162,28 @@ $sidebar-collapsed: 64px;
         &--open {
             transform: translateX(0);
         }
+
+        // Always show everything on mobile
+        .sidebar__user-info,
+        .sidebar__section-label,
+        .sidebar__stats-body,
+        .sidebar__tip,
+        .sidebar__recent,
+        .sidebar__theme,
+        .skill-tracker,
+        .sidebar__spacer,
+        .sidebar__label-text,
+        .sidebar__logout-text,
+        .sidebar__divider--collapsible {
+            max-height: 600px !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .sidebar__stats-compact { display: none !important; }
+        .sidebar__stat-grid     { display: grid !important; }
     }
 }
-
 
 // ── Backdrop ──────────────────────────────────────────────────────────────────
 .sidebar-backdrop {
@@ -296,6 +358,39 @@ $sidebar-collapsed: 64px;
 // ── Stats ─────────────────────────────────────────────────────────────────────
 .sidebar__stats {
     padding: 1rem 0.75rem 0.875rem;
+}
+
+// ── Spacer (flex:1 pushes items to bottom) ────────────────────────────────────
+.sidebar__spacer {
+    flex: 1;
+    min-height: 0.5rem;
+}
+
+// ── Compact stat dots (shown in collapsed rail) ───────────────────────────────
+.sidebar__stats-compact {
+    display: none; // default hidden; desktop collapsed shows it via JS class
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0;
+}
+
+.sidebar__stat-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    color: var(--accent);
+    cursor: default;
+
+    &--avg  { color: #f5a623; }
+    &--best { color: #3fb950; }
 }
 
 .sidebar__stat-grid {

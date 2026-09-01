@@ -94,12 +94,13 @@ const Sidebar = ({ open, onClose }) => {
 
                 <div className="sidebar__divider" />
 
-                {/* ── Navigation ── */}
+                {/* ── Navigation — always visible (icons collapse) ── */}
                 <nav className="sidebar__nav">
                     <p className="sidebar__section-label">Navigation</p>
                     {NAV.map(item => (
                         <button
                             key={item.id}
+                            title={item.label}
                             className={`sidebar__nav-item ${location.pathname === item.path && item.id === 'dashboard' ? 'sidebar__nav-item--active' : ''}`}
                             onClick={() => goTo(item.path)}
                         >
@@ -109,35 +110,44 @@ const Sidebar = ({ open, onClose }) => {
                     ))}
                 </nav>
 
-                <div className="sidebar__divider" />
+                <div className="sidebar__divider sidebar__divider--collapsible" />
 
                 {/* ── Stats ── */}
                 {reports !== null && (
                     <div className="sidebar__stats">
-                        <p className="sidebar__section-label">Your Stats</p>
-                        <div className="sidebar__stat-grid">
-                            <div className="sidebar__stat">
-                                <span className="sidebar__stat-value">{reports?.length ?? 0}</span>
-                                <span className="sidebar__stat-label">Plans Made</span>
-                            </div>
-                            <div className="sidebar__stat">
-                                <span className="sidebar__stat-value">{avgScore !== null ? `${avgScore}%` : '—'}</span>
-                                <span className="sidebar__stat-label">Avg Score</span>
-                            </div>
-                            <div className="sidebar__stat sidebar__stat--best">
-                                <span className="sidebar__stat-value">{bestScore !== null ? `${bestScore}%` : '—'}</span>
-                                <span className="sidebar__stat-label">Best Score</span>
+                        {/* Compact dots shown when rail is collapsed */}
+                        <div className="sidebar__stats-compact">
+                            <span className="sidebar__stat-dot" title="Plans Made">{reports?.length ?? 0}</span>
+                            <span className="sidebar__stat-dot sidebar__stat-dot--avg" title={`Avg Score: ${avgScore ?? '—'}%`}>{avgScore !== null ? `${avgScore}` : '—'}</span>
+                            <span className="sidebar__stat-dot sidebar__stat-dot--best" title={`Best Score: ${bestScore ?? '—'}%`}>★</span>
+                        </div>
+                        {/* Full grid shown when expanded */}
+                        <div className="sidebar__stats-body">
+                            <p className="sidebar__section-label">Your Stats</p>
+                            <div className="sidebar__stat-grid">
+                                <div className="sidebar__stat">
+                                    <span className="sidebar__stat-value">{reports?.length ?? 0}</span>
+                                    <span className="sidebar__stat-label">Plans Made</span>
+                                </div>
+                                <div className="sidebar__stat">
+                                    <span className="sidebar__stat-value">{avgScore !== null ? `${avgScore}%` : '—'}</span>
+                                    <span className="sidebar__stat-label">Avg Score</span>
+                                </div>
+                                <div className="sidebar__stat sidebar__stat--best">
+                                    <span className="sidebar__stat-value">{bestScore !== null ? `${bestScore}%` : '—'}</span>
+                                    <span className="sidebar__stat-label">Best Score</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="sidebar__divider" />
+                <div className="sidebar__divider sidebar__divider--collapsible" />
 
                 {/* ── Skill Tracker ── */}
                 <SkillTracker />
 
-                <div className="sidebar__divider" />
+                <div className="sidebar__divider sidebar__divider--collapsible" />
 
                 {/* ── Interview Tip ── */}
                 <div className="sidebar__tip">
@@ -158,9 +168,9 @@ const Sidebar = ({ open, onClose }) => {
                     </div>
                 </div>
 
-                <div className="sidebar__divider" />
+                <div className="sidebar__divider sidebar__divider--collapsible" />
 
-                {/* ── Recent Plans mini list ── */}
+                {/* ── Recent Plans ── */}
                 {reports && reports.length > 0 && (
                     <div className="sidebar__recent">
                         <p className="sidebar__section-label">Recent Plans</p>
@@ -179,10 +189,10 @@ const Sidebar = ({ open, onClose }) => {
                     </div>
                 )}
 
-                {/* ── Spacer ── */}
-                <div style={{ flex: 1 }} />
+                {/* ── Spacer (pushes theme + logout to bottom) ── */}
+                <div className="sidebar__spacer" />
 
-                <div className="sidebar__divider" />
+                <div className="sidebar__divider sidebar__divider--collapsible" />
 
                 {/* ── Theme Toggle — bottom ── */}
                 <div className="sidebar__theme sidebar__theme--bottom">
@@ -193,7 +203,7 @@ const Sidebar = ({ open, onClose }) => {
                 <div className="sidebar__divider" />
 
                 {/* ── Logout ── */}
-                <button className="sidebar__logout" onClick={doLogout}>
+                <button className="sidebar__logout" onClick={doLogout} title="Sign Out">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
