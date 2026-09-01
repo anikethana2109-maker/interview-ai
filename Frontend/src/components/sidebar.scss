@@ -1,14 +1,14 @@
 // ── Sidebar Styles ────────────────────────────────────────────────────────────
 // Uses CSS custom properties from style.scss
 
-$sidebar-width: 260px;
+$sidebar-width:     260px;
+$sidebar-collapsed: 64px;
 
 .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    width: $sidebar-width;
     background: var(--bg-card);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -18,17 +18,101 @@ $sidebar-width: 260px;
     z-index: 300;
     overflow-y: auto;
     overflow-x: hidden;
-    box-shadow: var(--shadow-md);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+    transition:
+        width       0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow  0.3s ease,
+        transform   0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.3s;
 
-    // Desktop: always visible
+    // ── Desktop: collapsed icon rail by default, expands on hover ──
     @media (min-width: 901px) {
-        transform: translateX(0) !important;
+        width: $sidebar-collapsed;
         box-shadow: none;
+        transform: translateX(0) !important;
+
+        &:hover {
+            width: $sidebar-width;
+            box-shadow: var(--shadow-hover);
+            // Expand: show all hidden text
+            .sidebar__label-text,
+            .sidebar__user-info,
+            .sidebar__section-label,
+            .sidebar__stat-label,
+            .sidebar__tip,
+            .sidebar__recent,
+            .sidebar__theme,
+            .sidebar__logout-text,
+            .skill-tracker {
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .sidebar__avatar {
+                animation: pulse-ring 3s ease-in-out infinite;
+            }
+        }
+
+        // Collapsed state — hide text, keep icons
+        .sidebar__label-text,
+        .sidebar__user-info,
+        .sidebar__section-label,
+        .sidebar__stat-label,
+        .sidebar__tip,
+        .sidebar__recent,
+        .sidebar__theme,
+        .sidebar__logout-text,
+        .skill-tracker {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        // Stat grid stacks to icons in collapsed
+        .sidebar__stat-grid {
+            flex-direction: column;
+        }
+
+        // Nav items — icon only when collapsed
+        .sidebar__nav-item {
+            justify-content: center;
+            padding: 0.7rem;
+            span.sidebar__nav-icon { margin: 0; }
+        }
+
+        // Profile — avatar centered when collapsed
+        .sidebar__profile {
+            justify-content: center;
+            padding: 1.25rem 0.5rem;
+        }
+
+        // Logout — icon only
+        .sidebar__logout {
+            justify-content: center;
+            padding: 1rem 0.5rem;
+        }
+
+        // Close button never shown on desktop
+        .sidebar__close { display: none; }
+
+        // Expanded state
+        &:hover {
+            .sidebar__nav-item {
+                justify-content: flex-start;
+                padding: 0.7rem 0.875rem;
+            }
+            .sidebar__profile {
+                justify-content: flex-start;
+                padding: 1.5rem 1.25rem 1.25rem;
+            }
+            .sidebar__logout {
+                justify-content: flex-start;
+                padding: 1rem 1.25rem;
+            }
+        }
     }
 
-    // Mobile: hidden by default, slides in when .sidebar--open
+    // ── Mobile: hidden by default, slides in when .sidebar--open ──
     @media (max-width: 900px) {
+        width: $sidebar-width;
         transform: translateX(-100%);
         box-shadow: var(--shadow-hover);
 
@@ -37,6 +121,7 @@ $sidebar-width: 260px;
         }
     }
 }
+
 
 // ── Backdrop ──────────────────────────────────────────────────────────────────
 .sidebar-backdrop {
@@ -174,7 +259,9 @@ $sidebar-width: 260px;
     font-weight: 500;
     cursor: pointer;
     text-align: left;
-    transition: background-color 0.15s, color 0.15s, transform 0.15s;
+    overflow: hidden;  // clips label text during collapse animation
+    white-space: nowrap;
+    transition: background-color 0.15s, color 0.15s, transform 0.15s, padding 0.3s, justify-content 0.3s;
 
     &:hover {
         background: var(--bg-panel);
@@ -195,6 +282,15 @@ $sidebar-width: 260px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
+}
+
+// ── Label text (fades out in collapsed state) ─────────────────────────────────
+.sidebar__label-text,
+.sidebar__logout-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.2s ease;
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────────

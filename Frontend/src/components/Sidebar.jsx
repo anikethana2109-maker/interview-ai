@@ -104,7 +104,7 @@ const Sidebar = ({ open, onClose }) => {
                             onClick={() => goTo(item.path)}
                         >
                             <span className="sidebar__nav-icon">{item.icon}</span>
-                            {item.label}
+                            <span className="sidebar__label-text">{item.label}</span>
                         </button>
                     ))}
                 </nav>
@@ -199,7 +199,7 @@ const Sidebar = ({ open, onClose }) => {
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />
                     </svg>
-                    Sign Out
+                    <span className="sidebar__logout-text">Sign Out</span>
                 </button>
             </aside>
         </>
