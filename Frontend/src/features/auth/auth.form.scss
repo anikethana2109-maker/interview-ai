@@ -9,11 +9,13 @@ main {
     align-items: center;
     background-color: var(--bg-page);
     transition: background-color 0.3s;
+    padding: 1rem;
+    box-sizing: border-box;
 
     .form-container {
-        min-width: 360px;
+        min-width: 0;
         max-width: 440px;
-        width: 90%;
+        width: 100%;
         background: var(--bg-card);
         border: 1px solid var(--border-color);
         border-radius: 1.25rem;
@@ -25,8 +27,13 @@ main {
         animation: scaleIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) both;
         transition: background-color 0.3s, border-color 0.3s;
 
+        @media (max-width: 480px) {
+            padding: 1.75rem 1.25rem;
+            border-radius: 1rem;
+        }
+
         h1 {
-            font-size: 1.75rem;
+            font-size: clamp(1.4rem, 6vw, 1.75rem);
             font-weight: 800;
             color: var(--text-primary);
             margin: 0;
@@ -77,13 +84,13 @@ main {
             border-radius: 0.75rem;
             background-color: var(--bg-input);
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 1rem; // ≥16px prevents iOS zoom
             font-family: 'Inter', system-ui, sans-serif;
             transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
 
-            &::placeholder {
-                color: var(--text-muted);
-            }
+            &::placeholder { color: var(--text-muted); }
 
             &:focus {
                 border-color: var(--accent);

@@ -1,5 +1,4 @@
 // ── App Layout ────────────────────────────────────────────────────────────────
-// Sidebar collapses to 64px icon rail on desktop, full 260px on hover (overlay)
 
 .app-layout {
     display: flex;
@@ -8,20 +7,74 @@
     transition: background-color 0.3s;
 }
 
+// ── Mobile Top Bar ────────────────────────────────────────────────────────────
+.mobile-topbar {
+    display: none;
+
+    @media (max-width: 900px) {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 250;
+        height: 52px;
+        padding: 0 1rem;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        gap: 0.75rem;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    &__menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 0.55rem;
+        cursor: pointer;
+        color: var(--text-primary);
+        flex-shrink: 0;
+        transition: border-color 0.15s, background 0.15s;
+
+        &:hover {
+            border-color: var(--accent);
+            background: rgba(var(--accent-rgb), 0.06);
+        }
+    }
+
+    &__brand {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.6));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    &__spacer { flex: 1; }
+}
+
+// ── Main Content ──────────────────────────────────────────────────────────────
 .app-layout__content {
     flex: 1;
     min-width: 0;
 
-    // Desktop: offset by collapsed sidebar width only
-    // Sidebar expands on hover as an overlay over content (with shadow)
+    // Desktop: offset by collapsed sidebar
     @media (min-width: 901px) {
         margin-left: 64px;
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    // Mobile: full width + padding for hamburger button
+    // Mobile: full width, pad below the topbar
     @media (max-width: 900px) {
         margin-left: 0;
-        padding-top: 3.5rem;
+        padding-top: 52px; // same height as topbar
     }
 }

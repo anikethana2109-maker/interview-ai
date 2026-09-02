@@ -20,9 +20,10 @@ $severity-low:    #3fb950;
     padding: 1.5rem;
     box-sizing: border-box;
     transition: background-color 0.3s, color 0.3s;
-    padding-bottom: 5rem; // space for mobile bottom nav
+    padding-bottom: 5rem;
 
     @media (max-width: 900px) {
+        // top = topbar(52px) + some breathing room
         padding: 0.75rem 0.75rem 5rem;
     }
 
