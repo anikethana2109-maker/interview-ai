@@ -12,14 +12,13 @@
 
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 2.5rem 1.5rem 4rem;
-    gap: 2rem;
+    align-items: stretch;
+    padding: 1.75rem 1.5rem 4rem;
+    gap: 1.75rem;
 
     @media (max-width: 600px) {
-        padding: 1.25rem 0.875rem 3rem;
-        gap: 1.5rem;
+        padding: 1rem 0.875rem 3rem;
+        gap: 1.25rem;
     }
 }
 
@@ -69,7 +68,6 @@
 // ── Main Card ─────────────────────────────────────────────────────────────────
 .interview-card {
     width: 100%;
-    max-width: 920px;
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 1.25rem;
@@ -397,7 +395,6 @@
     flex-direction: column;
     gap: 0.875rem;
     width: 100%;
-    max-width: 920px;
     animation: fadeInUp 0.5s ease 0.25s both;
 
     h2 {

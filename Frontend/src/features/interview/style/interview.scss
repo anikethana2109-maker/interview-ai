@@ -16,7 +16,7 @@ $ease:            cubic-bezier(0.4, 0, 0.2, 1);
     font-family: 'Inter', system-ui, sans-serif;
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: 1.25rem 1.25rem 3rem;
     padding-bottom: 3rem;
     box-sizing: border-box;
     gap: 1.25rem;
@@ -31,7 +31,6 @@ $ease:            cubic-bezier(0.4, 0, 0.2, 1);
 // ── Section Navbar ────────────────────────────────────────────────────────────
 .section-navbar {
     width: 100%;
-    max-width: 1100px;
     margin: 0 auto;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -222,7 +221,6 @@ $ease:            cubic-bezier(0.4, 0, 0.2, 1);
 // ── Interview Body ─────────────────────────────────────────────────────────────
 .interview-body {
     width: 100%;
-    max-width: 1100px;
     margin: 0 auto;
     animation: fadeIn 0.35s ease both;
 }
