@@ -1,49 +1,37 @@
 const express = require('express')
 const authMiddleware = require('../middlewares/auth.middleware')
-const skillController = require('../controllers/skill.controller')
+const c = require('../controllers/skill.controller')
 
 const skillRouter = express.Router()
 
-/**
- * @route GET /api/skills/
- * @description Get all skills for the current user
- * @access Private
- */
-skillRouter.get('/', authMiddleware.authUser, skillController.getAllSkillsController)
+// ── Tracker ───────────────────────────────────────────────────────────────────
+skillRouter.get('/',    authMiddleware.authUser, c.getAllSkillsController)
+skillRouter.post('/',   authMiddleware.authUser, c.addSkillController)
+skillRouter.patch('/:skillId',  authMiddleware.authUser, c.updateSkillController)
+skillRouter.delete('/:skillId', authMiddleware.authUser, c.deleteSkillController)
 
-/**
- * @route GET /api/skills/profile
- * @description Get user's profile-level mastered skills
- * @access Private
- */
-skillRouter.get('/profile', authMiddleware.authUser, skillController.getProfileSkillsController)
+// ── Full Profile (one-shot for resume sync) ───────────────────────────────────
+skillRouter.get('/full-profile', authMiddleware.authUser, c.getFullProfileController)
 
-/**
- * @route POST /api/skills/
- * @description Add (or upsert) a skill to the tracker
- * @access Private
- */
-skillRouter.post('/', authMiddleware.authUser, skillController.addSkillController)
+// ── Profile Skills ────────────────────────────────────────────────────────────
+skillRouter.get('/profile',                         authMiddleware.authUser, c.getProfileSkillsController)
+skillRouter.post('/:skillId/save-to-profile',       authMiddleware.authUser, c.saveToProfileController)
 
-/**
- * @route POST /api/skills/:skillId/save-to-profile
- * @description Save a mastered skill to the user's profile
- * @access Private
- */
-skillRouter.post('/:skillId/save-to-profile', authMiddleware.authUser, skillController.saveToProfileController)
+// ── Custom Skills ─────────────────────────────────────────────────────────────
+skillRouter.get('/custom',    authMiddleware.authUser, c.getCustomSkillsController)
+skillRouter.post('/custom',   authMiddleware.authUser, c.addCustomSkillController)
+skillRouter.delete('/custom', authMiddleware.authUser, c.deleteCustomSkillController)
 
-/**
- * @route PATCH /api/skills/:skillId
- * @description Update a skill's status or notes
- * @access Private
- */
-skillRouter.patch('/:skillId', authMiddleware.authUser, skillController.updateSkillController)
+// ── Certifications ────────────────────────────────────────────────────────────
+skillRouter.get('/certifications',           authMiddleware.authUser, c.getCertificationsController)
+skillRouter.post('/certifications',          authMiddleware.authUser, c.addCertificationController)
+skillRouter.delete('/certifications/:certId', authMiddleware.authUser, c.deleteCertificationController)
 
-/**
- * @route DELETE /api/skills/:skillId
- * @description Delete a skill from the tracker
- * @access Private
- */
-skillRouter.delete('/:skillId', authMiddleware.authUser, skillController.deleteSkillController)
+// ── Learning Pathways ─────────────────────────────────────────────────────────
+skillRouter.get('/pathways',                                   authMiddleware.authUser, c.getLearningPathwaysController)
+skillRouter.post('/pathways',                                  authMiddleware.authUser, c.generateLearningPathwayController)
+skillRouter.patch('/pathways/:pathwayId/subtopic/:index',      authMiddleware.authUser, c.toggleSubtopicController)
+skillRouter.post('/pathways/:pathwayId/graduate',              authMiddleware.authUser, c.graduatePathwayController)
+skillRouter.delete('/pathways/:pathwayId',                     authMiddleware.authUser, c.deleteLearningPathwayController)
 
 module.exports = skillRouter

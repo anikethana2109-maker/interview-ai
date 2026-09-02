@@ -6,7 +6,15 @@ import {
     updateSkill as apiUpdate,
     deleteSkill as apiDelete,
     saveSkillToProfile as apiSaveToProfile,
-    getProfileSkills as apiGetProfile,
+    getFullProfile as apiGetFullProfile,
+    addCustomSkill as apiAddCustom,
+    deleteCustomSkill as apiDeleteCustom,
+    addCertification as apiAddCert,
+    deleteCertification as apiDeleteCert,
+    createLearningPathway as apiCreatePathway,
+    toggleSubtopic as apiToggleSubtopic,
+    graduatePathway as apiGraduate,
+    deleteLearningPathway as apiDeletePathway,
     generateResumeWithSkillsHtml,
 } from '../services/skill.api'
 
@@ -16,12 +24,20 @@ export const useSkills = () => {
 
     const { skills, setSkills, skillsLoading, setSkillsLoading } = context
 
-    const [profileSkills,       setProfileSkills]       = useState([])
-    const [profileLoading,      setProfileLoading]      = useState(false)
-    const [savingToProfile,     setSavingToProfile]     = useState({})   // { [skillId]: bool }
-    const [downloadingResume,   setDownloadingResume]   = useState(false)
+    // Profile state
+    const [masteredSkills,    setMasteredSkills]    = useState([])
+    const [customSkills,      setCustomSkills]       = useState([])
+    const [certifications,    setCertifications]     = useState([])
+    const [learningPathways,  setLearningPathways]   = useState([])
+    const [profileLoading,    setProfileLoading]     = useState(false)
 
-    // Load all tracker skills on first mount
+    // Per-action loading
+    const [savingToProfile,   setSavingToProfile]    = useState({})
+    const [generatingPathway, setGeneratingPathway]  = useState(false)
+    const [downloadingResume, setDownloadingResume]  = useState(false)
+    const [savedFlash,        setSavedFlash]         = useState({})
+
+    // ── Fetch tracker skills ────────────────────────────────────────────────────
     const fetchSkills = useCallback(async () => {
         setSkillsLoading(true)
         try {
@@ -34,14 +50,17 @@ export const useSkills = () => {
         }
     }, [setSkills, setSkillsLoading])
 
-    // Load profile skills on mount
-    const fetchProfileSkills = useCallback(async () => {
+    // ── Fetch full profile (one shot) ───────────────────────────────────────────
+    const fetchFullProfile = useCallback(async () => {
         setProfileLoading(true)
         try {
-            const data = await apiGetProfile()
-            if (data?.masteredSkills) setProfileSkills(data.masteredSkills)
+            const data = await apiGetFullProfile()
+            if (data?.masteredSkills)   setMasteredSkills(data.masteredSkills)
+            if (data?.customSkills)     setCustomSkills(data.customSkills)
+            if (data?.certifications)   setCertifications(data.certifications)
+            if (data?.learningPathways) setLearningPathways(data.learningPathways)
         } catch (err) {
-            console.error('Failed to fetch profile skills:', err)
+            console.error('Failed to fetch full profile:', err)
         } finally {
             setProfileLoading(false)
         }
@@ -49,20 +68,17 @@ export const useSkills = () => {
 
     useEffect(() => {
         fetchSkills()
-        fetchProfileSkills()
-    }, [fetchSkills, fetchProfileSkills])
+        fetchFullProfile()
+    }, [fetchSkills, fetchFullProfile])
 
-    /**
-     * Track a skill from an interview plan.
-     */
+    // ── Tracker skill methods ───────────────────────────────────────────────────
     const trackSkill = async ({ skill, severity, sourceReport }) => {
         try {
             const data = await apiAdd({ skill, severity, sourceReport })
             if (data?.skill) {
                 setSkills(prev => {
                     const exists = prev.find(s => s._id === data.skill._id)
-                    if (exists) return prev
-                    return [data.skill, ...prev]
+                    return exists ? prev : [data.skill, ...prev]
                 })
             }
             return data
@@ -72,9 +88,6 @@ export const useSkills = () => {
         }
     }
 
-    /**
-     * Cycle status: not-started → in-progress → mastered → not-started
-     */
     const cycleStatus = async (skillId) => {
         const cycle = { 'not-started': 'in-progress', 'in-progress': 'mastered', 'mastered': 'not-started' }
         const current = skills.find(s => s._id === skillId)
@@ -85,74 +98,129 @@ export const useSkills = () => {
             await apiUpdate({ skillId, status: nextStatus })
         } catch (err) {
             setSkills(prev => prev.map(s => s._id === skillId ? { ...s, status: current.status } : s))
-            console.error('Failed to update skill status:', err)
         }
     }
 
-    /**
-     * Update notes for a skill
-     */
     const updateNotes = async (skillId, notes) => {
         setSkills(prev => prev.map(s => s._id === skillId ? { ...s, notes } : s))
-        try {
-            await apiUpdate({ skillId, notes })
-        } catch (err) {
-            console.error('Failed to update notes:', err)
-        }
+        try { await apiUpdate({ skillId, notes }) } catch {}
     }
 
-    /**
-     * Remove a skill from tracker
-     */
     const removeSkill = async (skillId) => {
         const prev = skills.find(s => s._id === skillId)
-        setSkills(prev => prev.filter(s => s._id !== skillId))
+        setSkills(p => p.filter(s => s._id !== skillId))
         try {
             await apiDelete(skillId)
-        } catch (err) {
-            if (prev) setSkills(s => [prev, ...s])
-            console.error('Failed to delete skill:', err)
+        } catch {
+            if (prev) setSkills(p => [prev, ...p])
         }
     }
 
-    /**
-     * Save a mastered skill to the user's profile
-     */
+    // ── Profile: save mastered tracker skill ────────────────────────────────────
     const saveToProfile = async (skillId) => {
         setSavingToProfile(p => ({ ...p, [skillId]: true }))
         try {
             const data = await apiSaveToProfile(skillId)
-            if (data?.masteredSkills) setProfileSkills(data.masteredSkills)
+            if (data?.masteredSkills) setMasteredSkills(data.masteredSkills)
+            setSavedFlash(f => ({ ...f, [skillId]: true }))
+            setTimeout(() => setSavedFlash(f => ({ ...f, [skillId]: false })), 2000)
             return data
         } catch (err) {
-            console.error('Failed to save skill to profile:', err)
             throw err
         } finally {
             setSavingToProfile(p => ({ ...p, [skillId]: false }))
         }
     }
 
-    /**
-     * Check if a skill (by name) is saved in the profile
-     */
     const isInProfile = (skillName) =>
-        profileSkills.some(ps => ps.skill.toLowerCase() === skillName.toLowerCase())
+        masteredSkills.some(s => s.skill.toLowerCase() === skillName.toLowerCase()) ||
+        customSkills.some(s => s.skill.toLowerCase() === skillName.toLowerCase())
 
-    /**
-     * Download resume PDF with profile mastered skills injected.
-     * Uses the most recent interview report if no reportId provided.
-     */
-    const downloadResumeWithSkills = async (reportId) => {
-        if (!reportId) {
-            console.error('Report ID required for resume download')
-            return
+    // ── Custom Skills ───────────────────────────────────────────────────────────
+    const addCustomSkill = async (skillName, category = 'General') => {
+        const data = await apiAddCustom({ skill: skillName, category })
+        if (data?.customSkills) setCustomSkills(data.customSkills)
+        return data
+    }
+
+    const removeCustomSkill = async (skillName) => {
+        setCustomSkills(prev => prev.filter(s => s.skill !== skillName))
+        try {
+            const data = await apiDeleteCustom(skillName)
+            if (data?.customSkills) setCustomSkills(data.customSkills)
+        } catch {
+            await fetchFullProfile()
         }
+    }
+
+    // ── Certifications ──────────────────────────────────────────────────────────
+    const addCertification = async (certData) => {
+        const data = await apiAddCert(certData)
+        if (data?.certifications) setCertifications(data.certifications)
+        return data
+    }
+
+    const removeCertification = async (certId) => {
+        setCertifications(prev => prev.filter(c => c._id !== certId))
+        try {
+            const data = await apiDeleteCert(certId)
+            if (data?.certifications) setCertifications(data.certifications)
+        } catch {
+            await fetchFullProfile()
+        }
+    }
+
+    // ── Learning Pathways ───────────────────────────────────────────────────────
+    const generatePathway = async (skillName, level = 'beginner') => {
+        setGeneratingPathway(true)
+        try {
+            const data = await apiCreatePathway({ skillName, level })
+            if (data?.pathway) setLearningPathways(prev => [data.pathway, ...prev])
+            return data
+        } catch (err) {
+            throw err
+        } finally {
+            setGeneratingPathway(false)
+        }
+    }
+
+    const toggleSubtopic = async (pathwayId, index) => {
+        // Optimistic update
+        setLearningPathways(prev => prev.map(p => {
+            if (p._id !== pathwayId) return p
+            const subtopics = p.subtopics.map((s, i) =>
+                i === index ? { ...s, isCompleted: !s.isCompleted } : s
+            )
+            return { ...p, subtopics, isCompleted: subtopics.every(s => s.isCompleted) }
+        }))
+        try {
+            const data = await apiToggleSubtopic({ pathwayId, index })
+            if (data?.pathway) {
+                setLearningPathways(prev => prev.map(p => p._id === pathwayId ? data.pathway : p))
+            }
+        } catch {
+            await fetchFullProfile()
+        }
+    }
+
+    const graduatePathway = async (pathwayId) => {
+        const data = await apiGraduate(pathwayId)
+        if (data?.masteredSkills) setMasteredSkills(data.masteredSkills)
+        return data
+    }
+
+    const removePathway = async (pathwayId) => {
+        setLearningPathways(prev => prev.filter(p => p._id !== pathwayId))
+        try { await apiDeletePathway(pathwayId) } catch { await fetchFullProfile() }
+    }
+
+    // ── Download Resume with all profile data ───────────────────────────────────
+    const downloadResumeWithSkills = async (reportId) => {
+        if (!reportId) throw new Error('Report ID required')
         setDownloadingResume(true)
         try {
             const htmlContent = await generateResumeWithSkillsHtml(reportId)
-            if (!htmlContent || typeof htmlContent !== 'string') {
-                throw new Error('Invalid resume content')
-            }
+            if (!htmlContent || typeof htmlContent !== 'string') throw new Error('Invalid resume content')
 
             const html2pdfModule = await import('html2pdf.js')
             const html2pdf = html2pdfModule.default || html2pdfModule
@@ -164,22 +232,19 @@ export const useSkills = () => {
 
             await html2pdf().set({
                 margin: [8, 8, 8, 8],
-                filename: `resume_with_skills_${Date.now()}.pdf`,
+                filename: `resume_synced_${Date.now()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }).from(container).save()
 
             document.body.removeChild(container)
-        } catch (err) {
-            console.error('Failed to download resume with skills:', err)
-            throw err
         } finally {
             setDownloadingResume(false)
         }
     }
 
-    // Computed stats
+    // ── Computed stats ──────────────────────────────────────────────────────────
     const statsMap = {
         total:      skills.length,
         mastered:   skills.filter(s => s.status === 'mastered').length,
@@ -187,14 +252,26 @@ export const useSkills = () => {
         notStarted: skills.filter(s => s.status === 'not-started').length,
     }
 
+    const allProfileSkillNames = [
+        ...masteredSkills.map(s => s.skill),
+        ...customSkills.map(s => s.skill),
+    ]
+
     return {
-        skills, skillsLoading,
-        trackSkill, cycleStatus, updateNotes, removeSkill,
-        statsMap,
+        // Tracker
+        skills, skillsLoading, trackSkill, cycleStatus, updateNotes, removeSkill, statsMap,
         // Profile
-        profileSkills, profileLoading,
-        saveToProfile, isInProfile, savingToProfile,
+        masteredSkills, customSkills, certifications, learningPathways, profileLoading,
+        saveToProfile, isInProfile, savingToProfile, savedFlash, allProfileSkillNames,
+        // Custom Skills
+        addCustomSkill, removeCustomSkill,
+        // Certifications
+        addCertification, removeCertification,
+        // Pathways
+        generatePathway, generatingPathway, toggleSubtopic, graduatePathway, removePathway,
         // Resume
         downloadResumeWithSkills, downloadingResume,
+        // Refresh
+        fetchFullProfile,
     }
 }
