@@ -436,11 +436,11 @@ const SkillTracker = () => {
         <div className="st-root" ref={panelRef}>
 
             {/* ── Badge ── */}
-            <button className={`st-badge ${open ? 'st-badge--open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="JobStop">
+            <button className={`st-badge ${open ? 'st-badge--open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="JobStand">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                 </svg>
-                <span>JobStop</span>
+                <span>JobStand</span>
                 {total > 0 && <span className="st-badge__count">{total}</span>}
                 {pct > 0 && <span className={`st-badge__pct ${pct === 100 ? 'st-badge__pct--done' : ''}`}>{pct}%</span>}
                 {totalProfileItems > 0 && <span className="st-badge__profile" title={`${totalProfileItems} profile items`}>★{totalProfileItems}</span>}
@@ -456,7 +456,7 @@ const SkillTracker = () => {
                 {/* Panel header */}
                 <div className="st-panel__header">
                     <div className="st-panel__header-left">
-                        <span className="st-panel__title">JobStop</span>
+                        <span className="st-panel__title">JobStand</span>
                         <span className="st-panel__proverb">{PROVERB}</span>
                     </div>
                     <button className="st-icon-btn" onClick={() => setOpen(false)} aria-label="Close">

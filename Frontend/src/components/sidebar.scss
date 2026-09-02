@@ -115,6 +115,64 @@ $ease   : cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
+// ── Brand ─────────────────────────────────────────────────────────────────────
+.sidebar__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.9rem 0.75rem 0.75rem;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar__brand-mark {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 0.6rem;
+    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.65));
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.3);
+}
+
+.sidebar__brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease;
+}
+
+.sidebar__brand-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.sidebar__brand-accent {
+    color: var(--accent);
+}
+
+.sidebar__brand-slogan {
+    font-size: 0.58rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 // ── Profile ───────────────────────────────────────────────────────────────────
 .sidebar__profile {
     display: flex;

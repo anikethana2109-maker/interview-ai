@@ -21,7 +21,10 @@ const AppLayout = ({ children }) => {
                         <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                 </button>
-                <span className="mobile-topbar__brand">InterviewAI</span>
+                <div className="mobile-topbar__brand">
+                    <span className="mobile-topbar__brand-name">Job<span className="mobile-topbar__brand-accent">Stand</span></span>
+                    <span className="mobile-topbar__brand-slogan">Your career, elevated.</span>
+                </div>
                 <div className="mobile-topbar__spacer" />
             </header>
 

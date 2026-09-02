@@ -49,14 +49,30 @@
     }
 
     &__brand {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        line-height: 1;
+    }
+
+    &__brand-name {
         font-size: 1rem;
         font-weight: 800;
         color: var(--text-primary);
-        letter-spacing: -0.02em;
-        background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.6));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }
+
+    &__brand-accent {
+        color: var(--accent);
+    }
+
+    &__brand-slogan {
+        font-size: 0.6rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
     }
 
     &__spacer { flex: 1; }

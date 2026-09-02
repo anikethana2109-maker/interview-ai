@@ -118,6 +118,17 @@ const Sidebar = ({ open, onClose }) => {
 
             <aside className={cls} ref={sidebarRef} onClick={expand}>
 
+                {/* ── Brand ── */}
+                <div className="sidebar__brand">
+                    <div className="sidebar__brand-mark">JS</div>
+                    {isExpanded && (
+                        <div className="sidebar__brand-text">
+                            <span className="sidebar__brand-name">Job<span className="sidebar__brand-accent">Stand</span></span>
+                            <span className="sidebar__brand-slogan">Your career, elevated.</span>
+                        </div>
+                    )}
+                </div>
+
                 {/* ── Profile ── */}
                 <div className="sidebar__profile">
                     <div
