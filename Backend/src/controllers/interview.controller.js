@@ -1,5 +1,6 @@
 const { generateInterviewReport, generateResumePdf } = require("../services/ai.service")
 const interviewReportModel = require("../models/interviewReport.model")
+const userProfileModel = require("../models/userProfile.model")
 
 /**
  * @description Controller to generate interview report based on user self description, resume and job description.
@@ -126,9 +127,53 @@ async function generateResumePdfController(req, res) {
     }
 }
 
+/**
+ * @description Generate resume HTML with user's profile mastered skills injected.
+ *              Uses the same AI pipeline as generateResumePdfController but adds
+ *              the mastered skills the user has officially saved to their profile.
+ */
+async function generateResumeWithSkillsController(req, res) {
+    try {
+        const { interviewReportId } = req.params
+
+        const interviewReport = await interviewReportModel.findOne({
+            _id: interviewReportId,
+            user: req.user.id
+        })
+        if (!interviewReport) {
+            return res.status(404).json({ message: "Interview report not found." })
+        }
+
+        // Fetch profile skills
+        const profile = await userProfileModel.findOne({ user: req.user.id })
+        const masteredSkills = profile?.masteredSkills?.map(s => s.skill) || []
+
+        const { resume = "", jobDescription = "", selfDescription = "" } = interviewReport
+
+        // Inject mastered skills into the prompt
+        const skillsNote = masteredSkills.length > 0
+            ? `\n\nIMPORTANT: The candidate has OFFICIALLY MASTERED these skills (must be prominently listed in the Skills section): ${masteredSkills.join(', ')}`
+            : ''
+
+        const result = await generateResumePdf({
+            resume,
+            jobDescription: jobDescription + skillsNote,
+            selfDescription,
+        })
+
+        res.set("Content-Type", "text/html; charset=utf-8")
+        res.set("X-Content-Type", "resume-html-with-skills")
+        return res.send(result.data)
+    } catch (err) {
+        console.error("Resume-with-skills generation error:", err)
+        res.status(500).json({ message: err.message || "Failed to generate resume with skills" })
+    }
+}
+
 module.exports = {
     generateInterViewReportController,
     getInterviewReportByIdController,
     getAllInterviewReportsController,
-    generateResumePdfController
+    generateResumePdfController,
+    generateResumeWithSkillsController,
 }

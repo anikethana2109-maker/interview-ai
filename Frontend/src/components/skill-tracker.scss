@@ -448,3 +448,158 @@ $ease : cubic-bezier(0.4, 0, 0.2, 1);
         box-sizing: border-box;
     }
 }
+
+// -- Profile badge on compact badge --------------------------------------------
+.st-badge__profile-count {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #3fb950;
+    background: rgba(63,185,80,0.12);
+    border-radius: 2rem;
+    padding: 0.05rem 0.3rem;
+}
+
+// -- Panel item mastered state -------------------------------------------------
+.st-panel__item--mastered {
+    border-color: rgba(63,185,80,0.2);
+    background: rgba(63,185,80,0.03);
+}
+
+// -- Item row (status + save button on same line) ------------------------------
+.st-panel__item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+// -- Save to Profile button ----------------------------------------------------
+.st-panel__save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.63rem;
+    font-weight: 700;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(63,185,80,0.35);
+    background: rgba(63,185,80,0.08);
+    color: #3fb950;
+    cursor: pointer;
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+        background: rgba(63,185,80,0.18);
+        border-color: rgba(63,185,80,0.6);
+        transform: scale(1.04);
+    }
+
+    &--saved {
+        color: #3fb950;
+        background: rgba(63,185,80,0.14);
+        border-color: rgba(63,185,80,0.5);
+        cursor: default;
+    }
+
+    &--flash {
+        animation: savePulse 0.4s ease;
+    }
+
+    &:disabled { opacity: 0.7; }
+}
+
+.st-panel__save-spinner {
+    width: 8px; height: 8px;
+    border: 1.5px solid rgba(63,185,80,0.3);
+    border-top-color: #3fb950;
+    border-radius: 50%;
+    animation: globalSpin 0.7s linear infinite;
+    display: inline-block;
+}
+
+// -- Panel stats — saved count -------------------------------------------------
+.st-panel__stat--saved .st-panel__stat-val { color: #3fb950; }
+
+// -- Footer download section ---------------------------------------------------
+.st-panel__footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: rgba(63,185,80,0.03);
+}
+
+.st-panel__dl-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1rem;
+    background: linear-gradient(135deg, rgba(63,185,80,0.15), rgba(63,185,80,0.08));
+    border: 1px solid rgba(63,185,80,0.35);
+    border-radius: 0.65rem;
+    color: #3fb950;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: linear-gradient(135deg, rgba(63,185,80,0.25), rgba(63,185,80,0.14));
+        border-color: rgba(63,185,80,0.55);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(63,185,80,0.2);
+    }
+
+    &--loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
+.st-panel__dl-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px; height: 16px;
+    background: rgba(63,185,80,0.2);
+    border-radius: 2rem;
+    font-size: 0.62rem; font-weight: 900;
+    padding: 0 0.25rem;
+}
+
+.st-panel__dl-spinner {
+    width: 13px; height: 13px;
+    border: 2px solid rgba(63,185,80,0.25);
+    border-top-color: #3fb950;
+    border-radius: 50%;
+    animation: globalSpin 0.75s linear infinite;
+}
+
+.st-panel__dl-error {
+    font-size: 0.72rem;
+    color: #ff4d4d;
+    margin: 0;
+    text-align: center;
+}
+
+.st-panel__footer-tip {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+}
+
+@keyframes savePulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}

@@ -1,4 +1,5 @@
 const skillModel = require('../models/skill.model')
+const userProfileModel = require('../models/userProfile.model')
 
 /**
  * @description Get all skills for the current user
@@ -118,9 +119,75 @@ async function deleteSkillController(req, res) {
     }
 }
 
+/**
+ * @description Save a mastered skill to the user's profile (UserProfile collection)
+ * @route POST /api/skills/:skillId/save-to-profile
+ */
+async function saveToProfileController(req, res) {
+    try {
+        const { skillId } = req.params
+
+        const skill = await skillModel.findOne({ _id: skillId, user: req.user.id })
+        if (!skill) {
+            return res.status(404).json({ message: 'Skill not found.' })
+        }
+        if (skill.status !== 'mastered') {
+            return res.status(400).json({ message: 'Only mastered skills can be saved to profile.' })
+        }
+
+        // Upsert the UserProfile, add/update this skill in masteredSkills
+        const profile = await userProfileModel.findOneAndUpdate(
+            { user: req.user.id },
+            {
+                $pull: { masteredSkills: { skill: { $regex: new RegExp(`^${skill.skill.trim()}$`, 'i') } } }
+            },
+            { upsert: true, new: true }
+        )
+
+        // Now push the (fresh) skill entry
+        await userProfileModel.findOneAndUpdate(
+            { user: req.user.id },
+            {
+                $push: {
+                    masteredSkills: {
+                        skill: skill.skill,
+                        notes: skill.notes || '',
+                        sourceReport: skill.sourceReport || null,
+                        savedAt: new Date(),
+                    }
+                }
+            },
+            { new: true }
+        )
+
+        const updated = await userProfileModel.findOne({ user: req.user.id })
+        res.status(200).json({ message: 'Skill saved to profile.', masteredSkills: updated.masteredSkills })
+    } catch (err) {
+        console.error('Error saving skill to profile:', err)
+        res.status(500).json({ message: err.message || 'Failed to save skill to profile' })
+    }
+}
+
+/**
+ * @description Get all profile-level mastered skills for the current user
+ * @route GET /api/skills/profile
+ */
+async function getProfileSkillsController(req, res) {
+    try {
+        const profile = await userProfileModel.findOne({ user: req.user.id })
+        const masteredSkills = profile?.masteredSkills || []
+        res.status(200).json({ message: 'Profile skills fetched.', masteredSkills })
+    } catch (err) {
+        console.error('Error fetching profile skills:', err)
+        res.status(500).json({ message: err.message || 'Failed to fetch profile skills' })
+    }
+}
+
 module.exports = {
     getAllSkillsController,
     addSkillController,
     updateSkillController,
     deleteSkillController,
+    saveToProfileController,
+    getProfileSkillsController,
 }

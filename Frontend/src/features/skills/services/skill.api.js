@@ -34,3 +34,31 @@ export const deleteSkill = async (skillId) => {
     const response = await api.delete(`/api/skills/${skillId}`)
     return response.data
 }
+
+/**
+ * Save a mastered skill to the user's profile (UserProfile collection)
+ */
+export const saveSkillToProfile = async (skillId) => {
+    const response = await api.post(`/api/skills/${skillId}/save-to-profile`)
+    return response.data
+}
+
+/**
+ * Get user's profile-level mastered skills
+ */
+export const getProfileSkills = async () => {
+    const response = await api.get('/api/skills/profile')
+    return response.data
+}
+
+/**
+ * Generate resume HTML with profile mastered skills injected
+ */
+export const generateResumeWithSkillsHtml = async (interviewReportId) => {
+    const response = await api.post(
+        `/api/interview/resume/pdf-with-skills/${interviewReportId}`,
+        null,
+        { responseType: 'text' }
+    )
+    return response.data
+}
