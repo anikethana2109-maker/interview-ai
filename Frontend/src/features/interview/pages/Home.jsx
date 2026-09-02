@@ -66,9 +66,28 @@ const Home = () => {
     if (generating) {
         return (
             <main className='loading-screen'>
-                <div className='loading-spinner' />
-                <h2>Generating your interview plan...</h2>
-                <p>AI is analyzing your profile — this takes 20-40 seconds</p>
+                <div className='loading-screen__orbs'>
+                    <div className='loading-screen__orb loading-screen__orb--1' />
+                    <div className='loading-screen__orb loading-screen__orb--2' />
+                    <div className='loading-screen__orb loading-screen__orb--3' />
+                </div>
+                <div className='loading-screen__content'>
+                    <div className='loading-screen__logo'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h2>Building your plan<span className='loading-screen__dots'><span>.</span><span>.</span><span>.</span></span></h2>
+                    <p>AI is analysing your profile &amp; job description</p>
+                    <div className='loading-screen__steps'>
+                        <div className='loading-screen__step loading-screen__step--done'>Reading your resume</div>
+                        <div className='loading-screen__step loading-screen__step--active'>Generating questions</div>
+                        <div className='loading-screen__step'>Building roadmap</div>
+                    </div>
+                    <span className='loading-screen__eta'>Approx. 20 – 40 seconds</span>
+                </div>
             </main>
         )
     }
@@ -90,7 +109,7 @@ const Home = () => {
             )}
 
             {/* Main Card */}
-            <div className='interview-card'>
+            <div id="new-plan-form" className='interview-card'>
                 <div className='interview-card__body'>
 
                     {/* Left Panel - Job Description */}

@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router'
 import { useAuth } from '../features/auth/hooks/useAuth'
 import { useInterview } from '../features/interview/hooks/useInterview'
+import { useTheme } from '../hooks/useTheme'
 import ThemeToggle from './ThemeToggle'
-import SkillTracker from './SkillTracker'
 import './sidebar.scss'
 
 const TIPS = [
@@ -77,7 +77,20 @@ const Sidebar = ({ open, onClose }) => {
     // Click any part of the rail → expand
     const expand = () => { if (!pinned) setPinned(true) }
 
-    const goTo = (path) => { navigate(path); onClose?.() }
+    const { theme, toggleTheme } = useTheme()
+
+    const goTo = (path, id) => {
+        navigate(path)
+        if (id === 'new') {
+            setTimeout(() => {
+                const el = document.getElementById('new-plan-form')
+                    || document.querySelector('.home-form, form')
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }, 150)
+        }
+        onClose?.()
+        setPinned(false)
+    }
 
     const doLogout = async () => { await handleLogout(); navigate('/login') }
 
@@ -142,8 +155,8 @@ const Sidebar = ({ open, onClose }) => {
                     {NAV.map(item => (
                         <button
                             key={item.id}
-                            className={`sidebar__nav-item ${location.pathname === item.path && item.id === 'dashboard' ? 'sidebar__nav-item--active' : ''} ${isExpanded ? 'sidebar__nav-item--expanded' : ''}`}
-                            onClick={() => goTo(item.path)}
+                            className={`sidebar__nav-item ${location.pathname === '/' && item.id === 'dashboard' ? 'sidebar__nav-item--active' : ''} ${isExpanded ? 'sidebar__nav-item--expanded' : ''}`}
+                            onClick={() => goTo(item.path, item.id)}
                             onMouseEnter={e => showTip(e, item.label)}
                             onMouseLeave={hideTip}
                         >
@@ -249,12 +262,21 @@ const Sidebar = ({ open, onClose }) => {
 
                 <div className="sidebar__spacer" />
 
-                {/* ── Theme ── */}
+                {/* ── Theme — functional in BOTH states ── */}
                 {!isExpanded ? (
                     <div className="sidebar__rail-group">
-                        <span className="sidebar__rail-icon sidebar__rail-icon--theme" onMouseEnter={e => showTip(e, 'Toggle Theme')} onMouseLeave={hideTip}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
-                        </span>
+                        <button
+                            className="sidebar__rail-icon sidebar__rail-icon--theme"
+                            onClick={e => { e.stopPropagation(); toggleTheme() }}
+                            onMouseEnter={e => showTip(e, `Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`)}
+                            onMouseLeave={hideTip}
+                            title="Toggle theme"
+                        >
+                            {theme === 'dark'
+                                ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                                : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            }
+                        </button>
                     </div>
                 ) : (
                     <div className="sidebar__expanded-section" onClick={e => e.stopPropagation()}>

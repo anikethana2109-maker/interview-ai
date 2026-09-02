@@ -79,9 +79,25 @@ const RoadMapDay = ({ day }) => (
 
 const LoadingScreen = () => (
     <main className='loading-screen'>
-        <div className='loading-spinner' />
-        <h2>Loading your interview plan...</h2>
-        <p>This may take a moment</p>
+        <div className='loading-screen__orbs'>
+            <div className='loading-screen__orb loading-screen__orb--1' />
+            <div className='loading-screen__orb loading-screen__orb--2' />
+            <div className='loading-screen__orb loading-screen__orb--3' />
+        </div>
+        <div className='loading-screen__content'>
+            <div className='loading-screen__logo'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h2>Loading your plan<span className='loading-screen__dots'><span>.</span><span>.</span><span>.</span></span></h2>
+            <p>Fetching your interview details</p>
+            <div className='loading-screen__bar'>
+                <div className='loading-screen__bar-fill' />
+            </div>
+        </div>
     </main>
 )
 
