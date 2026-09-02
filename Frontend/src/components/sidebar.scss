@@ -115,28 +115,6 @@ $ease   : cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
-// ── Logo Mark ─────────────────────────────────────────────────────────────────
-.sidebar__logo-mark {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    margin: 0.85rem auto 0.6rem;
-    border-radius: 0.7rem;
-    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.65));
-    color: #fff;
-    flex-shrink: 0;
-    box-shadow: 0 3px 12px rgba(var(--accent-rgb), 0.28);
-    transition: box-shadow 0.2s, transform 0.2s;
-
-    &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 18px rgba(var(--accent-rgb), 0.4);
-    }
-
-    svg { display: block; }
-}
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 .sidebar__profile {
