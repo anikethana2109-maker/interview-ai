@@ -88,8 +88,8 @@ const Sidebar = ({ open, onClose }) => {
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
             }, 150)
         }
-        onClose?.()
-        setPinned(false)
+        // On mobile (drawer mode) close it; on desktop keep sidebar open
+        if (open) onClose?.()
     }
 
     const doLogout = async () => { await handleLogout(); navigate('/login') }
@@ -151,7 +151,7 @@ const Sidebar = ({ open, onClose }) => {
                 <div className="sidebar__divider" />
 
                 {/* ── Navigation ── */}
-                <nav className="sidebar__nav" onClick={e => e.stopPropagation()}>
+                <nav className="sidebar__nav">
                     {NAV.map(item => (
                         <button
                             key={item.id}
