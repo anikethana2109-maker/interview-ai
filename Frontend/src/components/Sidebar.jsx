@@ -206,7 +206,7 @@ const Sidebar = ({ open, onClose }) => {
                     </>
                 )}
 
-                {/* ── Skill Tracker ── */}
+                {/* ── Skill Tracker — now a global floating badge (top-right) ── */}
                 {!isExpanded ? (
                     <div className="sidebar__rail-group">
                         <span className="sidebar__rail-icon sidebar__rail-icon--skill" onMouseEnter={e => showTip(e, 'Skill Tracker')} onMouseLeave={hideTip}>
@@ -215,7 +215,10 @@ const Sidebar = ({ open, onClose }) => {
                     </div>
                 ) : (
                     <div className="sidebar__expanded-section" onClick={e => e.stopPropagation()}>
-                        <SkillTracker />
+                        <p className="sidebar__section-label">Skill Tracker</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+                            Track your skills via the <strong style={{ color: 'var(--accent)' }}>⚡ Skills badge</strong> in the top-right corner.
+                        </p>
                     </div>
                 )}
 
