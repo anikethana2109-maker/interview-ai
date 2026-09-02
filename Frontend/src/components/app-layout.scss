@@ -16,7 +16,7 @@
     left: 0;
     right: 0;
     z-index: 250;
-    height: 52px;
+    height: 60px;
     padding: 0 1.25rem;
     background: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
@@ -55,20 +55,20 @@
     &__brand {
         display: flex;
         align-items: center;
-        gap: 0.55rem;
+        gap: 0.7rem;
     }
 
     &__brand-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 30px;
-        height: 30px;
-        border-radius: 0.55rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 0.65rem;
         background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.65));
         color: #fff;
         flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.25);
+        box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.28);
 
         svg { display: block; }
     }
@@ -76,16 +76,16 @@
     &__brand-text {
         display: flex;
         flex-direction: column;
-        gap: 0;
+        gap: 0.1rem;
         line-height: 1;
     }
 
     &__brand-name {
-        font-size: 0.95rem;
+        font-size: 1.22rem;
         font-weight: 800;
         color: var(--text-primary);
         letter-spacing: -0.03em;
-        line-height: 1.15;
+        line-height: 1.1;
     }
 
     &__brand-accent {
@@ -93,10 +93,10 @@
     }
 
     &__brand-slogan {
-        font-size: 0.55rem;
-        font-weight: 500;
+        font-size: 0.68rem;
+        font-weight: 600;
         color: var(--text-muted);
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
     }
 
@@ -107,7 +107,7 @@
 .app-layout__content {
     flex: 1;
     min-width: 0;
-    padding-top: 52px; // offset for fixed topbar on all screen sizes
+    padding-top: 60px; // offset for fixed topbar on all screen sizes
 
     // Desktop: offset by collapsed sidebar rail
     @media (min-width: 901px) {

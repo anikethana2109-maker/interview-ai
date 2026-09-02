@@ -14,15 +14,15 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 // Root
 .st-root {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    top: 0.75rem;
+    right: 1.25rem;
     z-index: 400;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;
     font-family: 'Inter', system-ui, sans-serif;
-    @media (max-width: 900px) { top: 60px; }
+    @media (max-width: 900px) { top: 0.75rem; right: 1rem; }
 }
 
 // Badge
