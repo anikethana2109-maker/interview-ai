@@ -191,16 +191,9 @@ const SkillTracker = () => {
                     </button>
                 </div>
 
-                {/* Overview dashboard */}
+                {/* Compact stats strip */}
                 {total > 0 && (
                     <div className="st-panel__overview">
-                        {/* Donut ring */}
-                        <div className="st-panel__donut-wrap">
-                            <DonutRing pct={pct} size={72} stroke={7} />
-                            <span className="st-panel__donut-label">mastered</span>
-                        </div>
-
-                        {/* Stat cards */}
                         <div className="st-panel__stat-cards">
                             <div className="st-panel__stat-card">
                                 <span className="st-panel__stat-num">{total}</span>
