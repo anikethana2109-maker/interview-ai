@@ -53,7 +53,7 @@ const TrackerTab = ({ skills, skillsLoading, cycleStatus, removeSkill, updateNot
                                     disabled={isSaving || alreadySaved}
                                     title={alreadySaved ? 'Saved to profile ✓' : 'Save to your career profile'}
                                 >
-                                    {isSaving ? <span className="st-save-spinner" /> : alreadySaved ? '★ Saved' : '☆ Save to Profile'}
+                                    {isSaving ? <span className="st-save-spinner" /> : alreadySaved ? 'Saved' : 'Save to Profile'}
                                 </button>
                             )}
                         </div>
@@ -113,7 +113,7 @@ const PathwaysTab = ({ learningPathways, generatingPathway, generatePathway, tog
                     {LEVELS.map(l => <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>)}
                 </select>
                 <button className="st-gen-btn" onClick={handleGenerate} disabled={generatingPathway || !skillInput.trim()}>
-                    {generatingPathway ? <><span className="st-spinner-sm" /> Generating…</> : '⚡ Generate Pathway'}
+                    {generatingPathway ? <><span className="st-spinner-sm" /> Generating…</> : 'Generate Pathway'}
                 </button>
             </div>
 
@@ -168,7 +168,7 @@ const PathwaysTab = ({ learningPathways, generatingPathway, generatePathway, tog
                                     <div className="st-pathway__graduate">
                                         {gradError[pw._id] && <p className="st-pathway__grad-err">{gradError[pw._id]}</p>}
                                         <button className="st-graduate-btn" onClick={() => handleGraduate(pw._id)}>
-                                            🎓 Graduate to Profile Skills
+                                            Graduate to Profile Skills
                                         </button>
                                     </div>
                                 )}
@@ -217,7 +217,11 @@ const CertificationsTab = ({ certifications, addCertification, removeCertificati
                 {certifications.map(cert => (
                     <li key={cert._id} className="st-cert-card">
                         <div className="st-cert-card__body">
-                            <div className="st-cert-card__icon">🏆</div>
+                            <div className="st-cert-card__icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                                </svg>
+                            </div>
                             <div className="st-cert-card__info">
                                 <span className="st-cert-card__title">{cert.title}</span>
                                 <span className="st-cert-card__issuer">{cert.issuer}{cert.issueDate ? ` · ${cert.issueDate}` : ''}</span>
@@ -341,7 +345,7 @@ const ResumeSyncTab = ({ masteredSkills, customSkills, certifications, learningP
                     <p className="st-section-label">Skills on your next resume</p>
                     <div className="st-skill-cloud">
                         {masteredSkills.map((s, i) => (
-                            <span key={`m-${i}`} className="st-skill-chip st-skill-chip--mastered" title="From tracker">★ {s.skill}</span>
+                            <span key={`m-${i}`} className="st-skill-chip st-skill-chip--mastered" title="From tracker">{s.skill}</span>
                         ))}
                         {customSkills.map((s, i) => (
                             <span key={`c-${i}`} className="st-skill-chip st-skill-chip--custom">
@@ -380,11 +384,20 @@ const ResumeSyncTab = ({ masteredSkills, customSkills, certifications, learningP
 
 // ── Main SkillTracker Component ────────────────────────────────────────────────
 const TABS = [
-    { id: 'tracker',   label: 'Tracker',    icon: '📊' },
-    { id: 'pathways',  label: 'Pathways',   icon: '🗺️' },
-    { id: 'certs',     label: 'Certs',      icon: '🏆' },
-    { id: 'resume',    label: 'Resume Sync',icon: '📄' },
+    { id: 'tracker',  label: 'Tracker'  },
+    { id: 'pathways', label: 'Pathways' },
+    { id: 'certs',    label: 'Certs'    },
+    { id: 'resume',   label: 'Resume'   },
 ]
+
+const PROVERBS = [
+    '"The secret of getting ahead is getting started." — Mark Twain',
+    '"Success is the sum of small efforts repeated." — R. Collier',
+    '"Opportunities don\'t happen. You create them." — Chris Grosser',
+    '"Don\'t watch the clock; do what it does. Keep going." — Sam Levenson',
+    '"Push yourself, because no one else is going to do it for you."',
+]
+const PROVERB = PROVERBS[new Date().getDay() % PROVERBS.length]
 
 const SkillTracker = () => {
     const {
@@ -423,11 +436,11 @@ const SkillTracker = () => {
         <div className="st-root" ref={panelRef}>
 
             {/* ── Badge ── */}
-            <button className={`st-badge ${open ? 'st-badge--open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Career Hub">
+            <button className={`st-badge ${open ? 'st-badge--open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="JobStop">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                 </svg>
-                <span>Skills</span>
+                <span>JobStop</span>
                 {total > 0 && <span className="st-badge__count">{total}</span>}
                 {pct > 0 && <span className={`st-badge__pct ${pct === 100 ? 'st-badge__pct--done' : ''}`}>{pct}%</span>}
                 {totalProfileItems > 0 && <span className="st-badge__profile" title={`${totalProfileItems} profile items`}>★{totalProfileItems}</span>}
@@ -442,7 +455,10 @@ const SkillTracker = () => {
 
                 {/* Panel header */}
                 <div className="st-panel__header">
-                    <span className="st-panel__title">Career Hub</span>
+                    <div className="st-panel__header-left">
+                        <span className="st-panel__title">JobStop</span>
+                        <span className="st-panel__proverb">{PROVERB}</span>
+                    </div>
                     <button className="st-icon-btn" onClick={() => setOpen(false)} aria-label="Close">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -454,8 +470,7 @@ const SkillTracker = () => {
                 <div className="st-tabs">
                     {TABS.map(t => (
                         <button key={t.id} className={`st-tab ${activeTab === t.id ? 'st-tab--active' : ''}`} onClick={() => setActiveTab(t.id)}>
-                            <span className="st-tab__icon">{t.icon}</span>
-                            <span className="st-tab__label">{t.label}</span>
+                            {t.label}
                         </button>
                     ))}
                 </div>
