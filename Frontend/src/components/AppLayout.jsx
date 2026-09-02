@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Sidebar from './Sidebar'
+import SkillTracker from './SkillTracker'
 import './app-layout.scss'
 
 const AppLayout = ({ children }) => {
@@ -31,6 +32,9 @@ const AppLayout = ({ children }) => {
             <main className="app-layout__content">
                 {children}
             </main>
+
+            {/* Floating Skill Tracker badge — top-right, always visible */}
+            <SkillTracker />
         </div>
     )
 }

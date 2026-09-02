@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useSkills } from '../features/skills/hooks/useSkills'
 import './skill-tracker.scss'
 
@@ -15,129 +15,176 @@ const SEVERITY_COLOR = {
 }
 
 const SkillTracker = () => {
-    const { skills, skillsLoading, cycleStatus, removeSkill, statsMap } = useSkills()
-    const [expanded, setExpanded] = useState(true)
-    const [editingNotes, setEditingNotes] = useState(null) // skillId being edited
-    const { updateNotes } = useSkills()
+    const { skills, skillsLoading, cycleStatus, removeSkill, statsMap, updateNotes } = useSkills()
+    const [open,         setOpen]         = useState(false)
+    const [editingNotes, setEditingNotes] = useState(null)
+    const panelRef = useRef(null)
 
-    if (skillsLoading) {
-        return (
-            <div className="skill-tracker">
-                <div className="skill-tracker__loading">
-                    <div className="skill-tracker__spinner" />
-                </div>
-            </div>
-        )
-    }
+    const mastered   = statsMap?.mastered ?? 0
+    const total      = statsMap?.total    ?? 0
+    const pct        = total > 0 ? Math.round((mastered / total) * 100) : 0
+    const inProgress = skills.filter(s => s.status === 'in-progress').length
+
+    // Click outside → close
+    useEffect(() => {
+        if (!open) return
+        const handler = (e) => {
+            if (panelRef.current && !panelRef.current.contains(e.target)) setOpen(false)
+        }
+        const t = setTimeout(() => document.addEventListener('mousedown', handler), 60)
+        return () => { clearTimeout(t); document.removeEventListener('mousedown', handler) }
+    }, [open])
 
     return (
-        <div className="skill-tracker">
-            {/* Header */}
-            <button className="skill-tracker__header" onClick={() => setExpanded(o => !o)}>
-                <span className="skill-tracker__title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        <div className="st-badge-root" ref={panelRef}>
+
+            {/* ── Compact Badge ── */}
+            <button
+                className={`st-badge ${open ? 'st-badge--open' : ''}`}
+                onClick={() => setOpen(o => !o)}
+                aria-label="Skill Tracker"
+                title="Skill Tracker"
+            >
+                {/* Icon */}
+                <span className="st-badge__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                     </svg>
-                    Skill Tracker
-                    {skills.length > 0 && (
-                        <span className="skill-tracker__count">{skills.length}</span>
-                    )}
                 </span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                    style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.25s', flexShrink: 0 }}>
-                    <polyline points="6 9 12 15 18 9" />
+
+                {/* Label — hidden when closed on small screens */}
+                <span className="st-badge__label">Skills</span>
+
+                {/* Count bubble */}
+                {skills.length > 0 && (
+                    <span className="st-badge__count">{skills.length}</span>
+                )}
+
+                {/* Progress ring indicator */}
+                {total > 0 && (
+                    <span className={`st-badge__pct ${pct === 100 ? 'st-badge__pct--done' : ''}`}>
+                        {pct}%
+                    </span>
+                )}
+
+                {/* Chevron */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    className="st-badge__chevron"
+                    style={{ transform: open ? 'rotate(180deg)' : 'none' }}>
+                    <polyline points="6 9 12 15 18 9"/>
                 </svg>
             </button>
 
-            {/* Progress bar */}
-            {skills.length > 0 && (
-                <div className="skill-tracker__progress-row">
-                    <div className="skill-tracker__progress-bar">
-                        <div
-                            className="skill-tracker__progress-fill"
-                            style={{ width: `${Math.round((statsMap.mastered / statsMap.total) * 100)}%` }}
-                        />
-                    </div>
-                    <span className="skill-tracker__progress-pct">
-                        {Math.round((statsMap.mastered / statsMap.total) * 100)}%
+            {/* ── Expanded Panel ── */}
+            <div className={`st-panel ${open ? 'st-panel--open' : ''}`}>
+
+                {/* Panel header */}
+                <div className="st-panel__header">
+                    <span className="st-panel__title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        Skill Tracker
+                        {skills.length > 0 && (
+                            <span className="st-panel__count">{skills.length}</span>
+                        )}
                     </span>
+                    <button className="st-panel__close" onClick={() => setOpen(false)} aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
                 </div>
-            )}
 
-            {/* Body */}
-            <div className={`skill-tracker__body ${expanded ? 'skill-tracker__body--open' : ''}`}>
-                {skills.length === 0 ? (
-                    <p className="skill-tracker__empty">
-                        No skills tracked yet.<br />
-                        Click <strong>+ Track</strong> on any skill gap in an interview plan.
-                    </p>
-                ) : (
-                    <ul className="skill-tracker__list">
-                        {skills.map((s, i) => (
-                            <li
-                                key={s._id}
-                                className="skill-tracker__item"
-                                style={{ animationDelay: `${i * 0.04}s` }}
-                            >
-                                <div className="skill-tracker__item-top">
-                                    {/* Severity dot */}
-                                    <span className={`skill-tracker__sev-dot ${SEVERITY_COLOR[s.severity]}`} title={`${s.severity} severity`} />
-
-                                    {/* Skill name */}
-                                    <span className="skill-tracker__skill-name">{s.skill}</span>
-
-                                    {/* Delete */}
-                                    <button
-                                        className="skill-tracker__delete"
-                                        onClick={() => removeSkill(s._id)}
-                                        title="Remove from tracker"
-                                        aria-label={`Remove ${s.skill}`}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                {/* Status toggle */}
-                                <button
-                                    className={`skill-tracker__status ${STATUS_META[s.status]?.color}`}
-                                    onClick={() => cycleStatus(s._id)}
-                                    title={`Click to advance → ${STATUS_META[s.status]?.next}`}
-                                >
-                                    {STATUS_META[s.status]?.label}
-                                </button>
-
-                                {/* Notes */}
-                                {editingNotes === s._id ? (
-                                    <textarea
-                                        autoFocus
-                                        className="skill-tracker__notes-input"
-                                        defaultValue={s.notes}
-                                        placeholder="Add notes..."
-                                        onBlur={e => {
-                                            updateNotes(s._id, e.target.value)
-                                            setEditingNotes(null)
-                                        }}
-                                        onKeyDown={e => {
-                                            if (e.key === 'Escape') setEditingNotes(null)
-                                        }}
-                                    />
-                                ) : (
-                                    <button
-                                        className="skill-tracker__notes-btn"
-                                        onClick={() => setEditingNotes(s._id)}
-                                    >
-                                        {s.notes
-                                            ? <span className="skill-tracker__notes-text">{s.notes}</span>
-                                            : <span className="skill-tracker__notes-placeholder">+ Add note</span>
-                                        }
-                                    </button>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
+                {/* Progress bar */}
+                {total > 0 && (
+                    <div className="st-panel__progress-row">
+                        <div className="st-panel__progress-bar">
+                            <div className="st-panel__progress-fill" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="st-panel__pct">{pct}%</span>
+                    </div>
                 )}
+
+                {/* Stats strip */}
+                {total > 0 && (
+                    <div className="st-panel__stats">
+                        <span className="st-panel__stat">
+                            <span className="st-panel__stat-val">{total}</span> total
+                        </span>
+                        <span className="st-panel__stat-sep" />
+                        <span className="st-panel__stat st-panel__stat--prog">
+                            <span className="st-panel__stat-val">{inProgress}</span> in progress
+                        </span>
+                        <span className="st-panel__stat-sep" />
+                        <span className="st-panel__stat st-panel__stat--done">
+                            <span className="st-panel__stat-val">{mastered}</span> mastered
+                        </span>
+                    </div>
+                )}
+
+                <div className="st-panel__divider" />
+
+                {/* Body */}
+                <div className="st-panel__body">
+                    {skillsLoading ? (
+                        <div className="st-panel__loading">
+                            <div className="st-panel__spinner" />
+                        </div>
+                    ) : skills.length === 0 ? (
+                        <p className="st-panel__empty">
+                            No skills tracked yet.<br/>
+                            Click <strong>+ Track</strong> on any skill gap in an interview plan.
+                        </p>
+                    ) : (
+                        <ul className="st-panel__list">
+                            {skills.map((s, i) => (
+                                <li key={s._id} className="st-panel__item" style={{ animationDelay: `${i * 0.04}s` }}>
+                                    <div className="st-panel__item-top">
+                                        <span className={`st-panel__sev-dot ${SEVERITY_COLOR[s.severity]}`} title={`${s.severity} severity`} />
+                                        <span className="st-panel__skill-name">{s.skill}</span>
+                                        <button
+                                            className="st-panel__delete"
+                                            onClick={() => removeSkill(s._id)}
+                                            title="Remove"
+                                            aria-label={`Remove ${s.skill}`}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        className={`st-panel__status ${STATUS_META[s.status]?.color}`}
+                                        onClick={() => cycleStatus(s._id)}
+                                        title={`Click → ${STATUS_META[s.status]?.next}`}
+                                    >
+                                        {STATUS_META[s.status]?.label}
+                                    </button>
+
+                                    {editingNotes === s._id ? (
+                                        <textarea
+                                            autoFocus
+                                            className="st-panel__notes-input"
+                                            defaultValue={s.notes}
+                                            placeholder="Add notes..."
+                                            onBlur={e => { updateNotes(s._id, e.target.value); setEditingNotes(null) }}
+                                            onKeyDown={e => { if (e.key === 'Escape') setEditingNotes(null) }}
+                                        />
+                                    ) : (
+                                        <button className="st-panel__notes-btn" onClick={() => setEditingNotes(s._id)}>
+                                            {s.notes
+                                                ? <span className="st-panel__notes-text">{s.notes}</span>
+                                                : <span className="st-panel__notes-placeholder">+ Add note</span>
+                                            }
+                                        </button>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
         </div>
     )
